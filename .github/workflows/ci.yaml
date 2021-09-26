@@ -31,26 +31,27 @@ jobs:
 
   test_macOS:
     name: Test on macOS 11
-    runs-on: ubuntu-latest
+    runs-on: macos-11
     steps:
-      - name: System install
-        run: |
-          sudo apt-get update
-          sudo apt-get install gcc-multilib
       - name: Rust install
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           override: true
-          target: i586-unknown-linux-gnu
+          target: aarch64-apple-darwin
       - name: Checkout
-        uses: actions/checkout@v1
-      - name: Test
+        uses: actions/checkout@v2
+      - name: Build
         uses: actions-rs/cargo@v1
         with:
-          command: test
-          args: --target i586-unknown-linux-gnu --all-features
+          command: build
+      - name: Test
+        run: ./ci/test_full.sh
+        # uses: actions-rs/cargo@v1
+        # with:
+        #   command: test
+        #   args: --target aarch64-apple-darwin --all-features
 
 
   fmt:
