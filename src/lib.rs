@@ -34,7 +34,7 @@
 //! let actual = Value::from(0.123);
 //! let expected = Value {
 //!     mantissa: 123f64,
-//!     base: 1000f64,
+//!     base: Base::B1000,
 //!     prefix: Some(Prefix::Milli),
 //! };
 //! assert_eq!(actual, expected);
@@ -63,10 +63,12 @@ pub enum SIUnitsError {
 
 pub type Result<T> = std::result::Result<T, SIUnitsError>;
 
+pub mod base;
 pub mod prefix;
 pub mod value;
 
 pub mod prelude {
+    pub use crate::base::Base;
     pub use crate::prefix::Prefix;
     pub use crate::value::Value;
 }
