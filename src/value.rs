@@ -59,13 +59,13 @@ impl Value {
         F: Into<f64>,
     {
         let x: f64 = x.into();
-        let exponent: f64 = base.exponent_for(x);
-        let magnitude = 3 * exponent as i32;
+        let exponent: i32 = base.integral_exponent_for(x);
+        let magnitude = 3 * exponent;
 
         let prefix = Prefix::try_from(magnitude).ok();
 
         let mantissa = match prefix {
-            Some(_) => x / base.powf(exponent),
+            Some(_) => x / base.pow(exponent),
             None => x,
         };
 
@@ -80,7 +80,7 @@ impl Value {
     pub fn to_f64(&self) -> f64 {
         match self.prefix {
             Some(prefix) => {
-                let scale = self.base.powi(prefix.exponent());
+                let scale = self.base.pow(prefix.exponent());
                 self.mantissa * scale
             }
             None => self.mantissa,
