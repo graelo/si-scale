@@ -20,14 +20,24 @@
 //!
 //! Auto-format struct members:
 //!
-//! ```rust,ignore
-//! use pretty_units::{units, units::seconds};
+//! ```rust
+//! // use pretty_units::{units, units::seconds};
 //!
-//! #[derive(Debug)]
-//! struct Sample {
-//!     #[units(seconds)]
-//!     value: u16,
-//! }
+//! // #[derive(Debug)]
+//! // struct Sample {
+//! //     #[units(seconds)]
+//! //     value: u16,
+//! // }
+//! use std::convert::From;
+//! use pretty_units::prelude::*;
+//!
+//! let actual = Value::from(0.123);
+//! let expected = Value {
+//!     mantissa: 123f64,
+//!     base: 1000f64,
+//!     prefix: Some(Prefix::Milli),
+//! };
+//! assert_eq!(actual, expected);
 //! ```
 //!
 //!
@@ -47,5 +57,16 @@
 //! for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 //! be dual licensed as above, without any additional terms or conditions.
 
-/// Placeholder struct.
-pub struct Unit {}
+pub enum SIUnitsError {
+    ExponentParsing(String),
+}
+
+pub type Result<T> = std::result::Result<T, SIUnitsError>;
+
+pub mod prefix;
+pub mod value;
+
+pub mod prelude {
+    pub use crate::prefix::Prefix;
+    pub use crate::value::Value;
+}
