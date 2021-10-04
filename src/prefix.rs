@@ -78,10 +78,10 @@ impl FromStr for Prefix {
     }
 }
 
-impl TryFrom<i8> for Prefix {
+impl TryFrom<i32> for Prefix {
     type Error = SIUnitsError;
 
-    fn try_from(value: i8) -> Result<Self> {
+    fn try_from(value: i32) -> Result<Self> {
         match value {
             -24 => Ok(Self::Yocto),
             -21 => Ok(Self::Zepto),
@@ -107,26 +107,29 @@ impl TryFrom<i8> for Prefix {
     }
 }
 
-macro_rules! impl_try_from_num_for_siprefix {
-    ($t:ty) => {
-        impl TryFrom<$t> for Prefix {
-            type Error = SIUnitsError;
+// Currently commented out because not really useful.
+//
+// macro_rules! impl_try_from_num_for_siprefix {
+//     ($t:ty) => {
+//         impl TryFrom<$t> for Prefix {
+//             type Error = SIUnitsError;
 
-            fn try_from(value: $t) -> Result<Self> {
-                Prefix::try_from(value as i8)
-            }
-        }
-    };
-}
+//             fn try_from(value: $t) -> Result<Self> {
+//                 Prefix::try_from(value as i32)
+//             }
+//         }
+//     };
+// }
 
-impl_try_from_num_for_siprefix!(u8);
-impl_try_from_num_for_siprefix!(u16);
-impl_try_from_num_for_siprefix!(i16);
-impl_try_from_num_for_siprefix!(u32);
-impl_try_from_num_for_siprefix!(i32);
-impl_try_from_num_for_siprefix!(u64);
-impl_try_from_num_for_siprefix!(i64);
-impl_try_from_num_for_siprefix!(usize);
-impl_try_from_num_for_siprefix!(isize);
-impl_try_from_num_for_siprefix!(f32);
-impl_try_from_num_for_siprefix!(f64);
+// impl_try_from_num_for_siprefix!(u8);
+// impl_try_from_num_for_siprefix!(i8);
+// impl_try_from_num_for_siprefix!(u16);
+// impl_try_from_num_for_siprefix!(i16);
+// impl_try_from_num_for_siprefix!(u32);
+// // impl_try_from_num_for_siprefix!(i32);
+// impl_try_from_num_for_siprefix!(u64);
+// impl_try_from_num_for_siprefix!(i64);
+// impl_try_from_num_for_siprefix!(usize);
+// impl_try_from_num_for_siprefix!(isize);
+// impl_try_from_num_for_siprefix!(f32);
+// impl_try_from_num_for_siprefix!(f64);
