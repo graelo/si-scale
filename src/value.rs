@@ -93,6 +93,7 @@ impl Value {
     /// ```
     /// use pretty_units::prelude::{Allowed, Base, Prefix, Value};
     ///
+    /// // 4 MiB
     /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, Allowed::All);
     /// let expected = Value {
     ///     mantissa: 4f64,
@@ -108,11 +109,11 @@ impl Value {
     {
         let x: f64 = x.into();
 
-        let base_exponent: i32 = base.integral_exponent_for(x);
-        let prefix = Prefix::try_from(3 * base_exponent).ok();
+        let exponent: i32 = base.integral_exponent_for(x);
+        let prefix = Prefix::try_from(exponent).ok();
 
         let mantissa = match prefix {
-            Some(_) => x / base.pow(base_exponent),
+            Some(_) => x / base.pow(exponent),
             None => x,
         };
 
@@ -141,7 +142,7 @@ impl Value {
     pub fn to_f64(&self) -> f64 {
         match self.prefix {
             Some(prefix) => {
-                let scale = self.base.pow(prefix.base_exponent());
+                let scale = self.base.pow(prefix.exponent());
                 self.mantissa * scale
             }
             None => self.mantissa,

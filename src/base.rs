@@ -15,13 +15,13 @@ impl Base {
     /// ```
     /// use pretty_units::base::Base;
     ///
-    /// let x: f32  = 5.4e3;
+    /// let x: f32  = 5.4e4;
     /// let actual = Base::B1000.integral_exponent_for(x);
-    /// assert_eq!(actual, 1);  // 1e3
+    /// assert_eq!(actual, 3);  // 1e3
     ///
-    /// let x: f64  = -5.4e-3;
+    /// let x: f64  = -5.4e-4;
     /// let actual = Base::B1000.integral_exponent_for(x);
-    /// assert_eq!(actual, -1);  // 1e-3
+    /// assert_eq!(actual, -6);  // 1e-6
     /// ```
     ///
     pub fn integral_exponent_for<F>(&self, x: F) -> i32
@@ -30,8 +30,8 @@ impl Base {
     {
         let x: f64 = x.into();
         match self {
-            Self::B1000 => (x.abs().log10() / 3f64).floor() as i32,
-            Self::B1024 => (x.abs().log2() / 10f64).floor() as i32,
+            Self::B1000 => (x.abs().log10() / 3f64).floor() as i32 * 3,
+            Self::B1024 => (x.abs().log2() / 10f64).floor() as i32 * 3,
         }
     }
 
@@ -42,13 +42,13 @@ impl Base {
     /// ```
     /// use pretty_units::base::Base;
     ///
-    /// assert_eq!(Base::B1000.pow(3), 1e9);
+    /// assert_eq!(Base::B1000.pow(9), 1e9);
     /// ```
     ///
     pub fn pow(&self, base_exponent: i32) -> f64 {
         match self {
-            Self::B1000 => 1000f64.powf(base_exponent as f64),
-            Self::B1024 => 1024f64.powf(base_exponent as f64),
+            Self::B1000 => 1000f64.powf(base_exponent as f64 / 3f64),
+            Self::B1024 => 1024f64.powf(base_exponent as f64 / 3f64),
         }
     }
 }

@@ -55,8 +55,8 @@ impl Prefix {
     /// For instance, if self is `-12` ("pico"), then `base_exponent()`
     /// returns 4, for `1000.pow(-4)` to be the multiplication factor:
     /// `1e-12`.
-    pub fn base_exponent(&self) -> i32 {
-        *self as i32 / 3
+    pub fn exponent(&self) -> i32 {
+        *self as i32
     }
 }
 
