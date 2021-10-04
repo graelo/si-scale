@@ -3,6 +3,14 @@ use std::str::FromStr;
 
 use crate::{Result, SIUnitsError};
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum Allowed {
+    All,
+    GreaterThan1,
+    SmallerThan1,
+    Custom(Vec<Prefix>),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Prefix {

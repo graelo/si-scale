@@ -3,6 +3,7 @@ use std::convert::From;
 use std::convert::TryFrom;
 
 use crate::base::Base;
+use crate::prefix::Allowed;
 
 /// Represents a float value using its mantissa and unit Prefix in a base.
 ///
@@ -82,7 +83,7 @@ impl Value {
     where
         F: Into<f64>,
     {
-        Value::new_with(x, Base::B1000)
+        Value::new_with(x, Base::B1000, Allowed::All)
     }
 
     /// Returns a `Value` for the provided base.
@@ -90,9 +91,9 @@ impl Value {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::prelude::{Base, Prefix, Value};
+    /// use pretty_units::prelude::{Allowed, Base, Prefix, Value};
     ///
-    /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024);
+    /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, Allowed::All);
     /// let expected = Value {
     ///     mantissa: 4f64,
     ///     base: Base::B1024,
@@ -101,7 +102,7 @@ impl Value {
     /// assert_eq!(actual, expected);
     /// ```
     ///
-    pub fn new_with<F>(x: F, base: Base) -> Self
+    pub fn new_with<F>(x: F, base: Base, allowed_prefixes: Allowed) -> Self
     where
         F: Into<f64>,
     {
@@ -430,7 +431,7 @@ mod tests {
 
     #[test]
     fn large_value_with_base_1024() {
-        let actual = Value::new_with(1, Base::B1024);
+        let actual = Value::new_with(1, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 1f64,
             base: Base::B1024,
@@ -438,7 +439,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(16, Base::B1024);
+        let actual = Value::new_with(16, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 16f64,
             base: Base::B1024,
@@ -446,7 +447,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(1024, Base::B1024);
+        let actual = Value::new_with(1024, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 1f64,
             base: Base::B1024,
@@ -454,7 +455,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(1.6 * 1024f32, Base::B1024);
+        let actual = Value::new_with(1.6 * 1024f32, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 1.600000023841858f64,
             base: Base::B1024,
@@ -462,7 +463,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(16 * 1024 * 1024, Base::B1024);
+        let actual = Value::new_with(16 * 1024 * 1024, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 16f64,
             base: Base::B1024,

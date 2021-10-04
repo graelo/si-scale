@@ -8,7 +8,7 @@ pub enum Base {
 
 impl Base {
     /// Returns the smallest integer exponent to represent the provided value
-    /// `x`.
+    /// `x` in the self `Base`.
     ///
     /// For instance,
     ///
@@ -18,6 +18,10 @@ impl Base {
     /// let x: f32  = 5.4e3;
     /// let actual = Base::B1000.integral_exponent_for(x);
     /// assert_eq!(actual, 1);  // 1e3
+    ///
+    /// let x: f64  = -5.4e-3;
+    /// let actual = Base::B1000.integral_exponent_for(x);
+    /// assert_eq!(actual, -1);  // 1e-3
     /// ```
     ///
     pub fn integral_exponent_for<F>(&self, x: F) -> i32
@@ -41,10 +45,10 @@ impl Base {
     /// assert_eq!(Base::B1000.pow(3), 1e9);
     /// ```
     ///
-    pub fn pow(&self, exponent: i32) -> f64 {
+    pub fn pow(&self, base_exponent: i32) -> f64 {
         match self {
-            Self::B1000 => 1000f64.powf(exponent as f64),
-            Self::B1024 => 1024f64.powf(exponent as f64),
+            Self::B1000 => 1000f64.powf(base_exponent as f64),
+            Self::B1024 => 1024f64.powf(base_exponent as f64),
         }
     }
 }

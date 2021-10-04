@@ -69,6 +69,6 @@ pub mod value;
 
 pub mod prelude {
     pub use crate::base::Base;
-    pub use crate::prefix::Prefix;
+    pub use crate::prefix::{Allowed, Prefix};
     pub use crate::value::Value;
 }
