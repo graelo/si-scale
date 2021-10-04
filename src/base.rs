@@ -7,14 +7,41 @@ pub enum Base {
 }
 
 impl Base {
-    pub(crate) fn integral_exponent_for(&self, x: f64) -> i32 {
+    /// Returns the smallest integer exponent to represent the provided value
+    /// `x`.
+    ///
+    /// For instance,
+    ///
+    /// ```
+    /// use pretty_units::base::Base;
+    ///
+    /// let x: f32  = 5.4e3;
+    /// let actual = Base::B1000.integral_exponent_for(x);
+    /// assert_eq!(actual, 1);  // 1e3
+    /// ```
+    ///
+    pub fn integral_exponent_for<F>(&self, x: F) -> i32
+    where
+        F: Into<f64>,
+    {
+        let x: f64 = x.into();
         match self {
             Self::B1000 => (x.abs().log10() / 3f64).floor() as i32,
             Self::B1024 => (x.abs().log2() / 10f64).floor() as i32,
         }
     }
 
-    pub(crate) fn pow(&self, exponent: i32) -> f64 {
+    /// Raises self to the power of the provided `base_exponent`.
+    ///
+    /// For instance,
+    ///
+    /// ```
+    /// use pretty_units::base::Base;
+    ///
+    /// assert_eq!(Base::B1000.pow(3), 1e9);
+    /// ```
+    ///
+    pub fn pow(&self, exponent: i32) -> f64 {
         match self {
             Self::B1000 => 1000f64.powf(exponent as f64),
             Self::B1024 => 1024f64.powf(exponent as f64),
