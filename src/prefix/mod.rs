@@ -1,15 +1,11 @@
 use std::convert::TryFrom;
+use std::fmt;
 use std::str::FromStr;
 
-use crate::{Result, SIUnitsError};
+pub mod allowed;
+pub use allowed::Allowed;
 
-#[derive(Debug, PartialEq, Eq)]
-pub enum Allowed {
-    All,
-    GreaterThan1,
-    SmallerThan1,
-    Custom(Vec<Prefix>),
-}
+use crate::{Result, SIUnitsError};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
@@ -30,6 +26,8 @@ pub enum Prefix {
     Micro = -6,
     /// "milli" prefix, 1e-3
     Milli = -3,
+    /// unit prefix (empty), 1
+    Unit = 0,
     /// "kilo" prefix, 1e3
     Kilo = 3,
     /// "mega" prefix, 1e6
@@ -63,6 +61,20 @@ impl Prefix {
 impl FromStr for Prefix {
     type Err = SIUnitsError;
 
+    /// Converts a `&str` into a `Prefix` if conversion is successful,
+    /// otherwise return an `Err`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use std::str::FromStr;
+    /// use pretty_units::prelude::Prefix;
+    /// use pretty_units::Result;
+    ///
+    /// let actual= Prefix::from_str("y");
+    /// let expected = Ok(Prefix::Yocto);
+    /// assert_eq!(actual, expected);
+    /// ```
     fn from_str(s: &str) -> Result<Self> {
         match s {
             "Yocto" | "yocto" | "y" => Ok(Self::Yocto),
@@ -86,6 +98,50 @@ impl FromStr for Prefix {
     }
 }
 
+impl From<&Prefix> for &str {
+    /// Converts a prefix into its displayable form (`&'static str`).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pretty_units::prelude::Prefix;
+    ///
+    /// let pfx = Prefix::Tera;
+    /// let a_string = format!("value: {} {}B", 1.5, pfx);
+    ///
+    /// assert_eq!(a_string, "value: 1.5 TB");
+    /// ```
+    ///
+    fn from(prefix: &Prefix) -> &'static str {
+        match prefix {
+            Prefix::Yocto => "y",
+            Prefix::Zepto => "z",
+            Prefix::Atto => "a",
+            Prefix::Femto => "f",
+            Prefix::Pico => "p",
+            Prefix::Nano => "n",
+            Prefix::Micro => "µ",
+            Prefix::Milli => "m",
+            Prefix::Unit => "",
+            Prefix::Kilo => "k",
+            Prefix::Mega => "M",
+            Prefix::Giga => "G",
+            Prefix::Tera => "T",
+            Prefix::Peta => "P",
+            Prefix::Exa => "E",
+            Prefix::Zetta => "Z",
+            Prefix::Yotta => "Y",
+        }
+    }
+}
+
+impl fmt::Display for Prefix {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: &'static str = self.into();
+        write!(f, "{}", s)
+    }
+}
+
 impl TryFrom<i32> for Prefix {
     type Error = SIUnitsError;
 
@@ -99,6 +155,7 @@ impl TryFrom<i32> for Prefix {
             -9 => Ok(Self::Nano),
             -6 => Ok(Self::Micro),
             -3 => Ok(Self::Milli),
+            0 => Ok(Self::Unit),
             3 => Ok(Self::Kilo),
             6 => Ok(Self::Mega),
             9 => Ok(Self::Giga),

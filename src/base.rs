@@ -7,10 +7,13 @@ pub enum Base {
 }
 
 impl Base {
-    /// Returns the smallest integer exponent to represent the provided value
-    /// `x` in the self `Base`.
+    /// Using `floor()`, returns the closest integer exponent to represent the
+    /// provided value `x` in the self `Base`.
     ///
-    /// For instance,
+    /// The returned integer exponent is a multiple of 3 in order to match the
+    /// prefixes' exponents.
+    ///
+    /// # Example
     ///
     /// ```
     /// use pretty_units::base::Base;
@@ -37,7 +40,7 @@ impl Base {
 
     /// Raises self to the power of the provided `base_exponent`.
     ///
-    /// For instance,
+    /// # Example
     ///
     /// ```
     /// use pretty_units::base::Base;
