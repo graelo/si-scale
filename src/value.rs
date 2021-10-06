@@ -1,6 +1,5 @@
 use crate::prefix::Prefix;
 use std::convert::From;
-use std::convert::TryFrom;
 
 use crate::base::Base;
 use crate::prefix::Allowed;
@@ -111,13 +110,13 @@ impl Value {
     {
         let x: f64 = x.into();
 
+        // Closest integral exponent (multiple of 3)
         let exponent: i32 = base.integral_exponent_for(x);
-        // Find smallest allowed prefix
-        // let exponent = allowed_prefixes.smallest_for(exponent);
-        let prefix = Prefix::try_from(exponent).ok();
+        // Clamp the exponent using the allowed prefixes
+        let prefix = allowed_prefixes.closest_prefix_below(exponent);
 
         let mantissa = match prefix {
-            Some(_) => x / base.pow(exponent),
+            Some(prefix) => x / base.pow(prefix.exponent()),
             None => x,
         };
 
@@ -184,17 +183,17 @@ mod tests {
     fn out_of_scale_values() {
         let actual = Value::new(1e-28);
         let expected = Value {
-            mantissa: 1e-28f64,
+            mantissa: 1e-4f64,
             base: Base::B1000,
-            prefix: None,
+            prefix: Some(Prefix::Yocto),
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new(-1.3e28);
+        let actual = Value::new(-1.5e28);
         let expected = Value {
-            mantissa: -1.3e28f64,
+            mantissa: -1.5e4f64,
             base: Base::B1000,
-            prefix: None,
+            prefix: Some(Prefix::Yotta),
         };
         assert_eq!(actual, expected);
     }
@@ -431,9 +430,9 @@ mod tests {
 
         let actual = Value::from(-1.5e28);
         let expected = Value {
-            mantissa: -1.5e28f64,
+            mantissa: -1.5e4f64,
             base: Base::B1000,
-            prefix: None,
+            prefix: Some(Prefix::Yotta),
         };
         assert_eq!(actual, expected);
     }
