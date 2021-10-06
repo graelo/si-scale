@@ -7,6 +7,8 @@ pub use allowed::Allowed;
 
 use crate::{Result, SIUnitsError};
 
+/// Represents units' [SI prefixes](https://www.bipm.org/en/measurement-units/si-prefixes).
+///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Prefix {
@@ -48,11 +50,15 @@ pub enum Prefix {
 
 impl Prefix {
     /// Returns the exponent `e` for `base.pow(e)` to return the total
-    /// multiplication factor.
+    /// scaling factor. See [`Base::pow()`][`crate::base::Base::pow()`].
     ///
-    /// For instance, if self is `-12` ("pico"), then `base_exponent()`
-    /// returns 4, for `1000.pow(-4)` to be the multiplication factor:
-    /// `1e-12`.
+    /// For instance,
+    ///
+    /// - if self is `-12` ("pico"), then `exponent()` returns `-12` so that
+    /// `Base::B1000.pow(-12)` returns the scaling factor `1e-12`.
+    ///
+    /// - if self is `3` ("kilo"), then `exponent()` returns `3` so that
+    /// `Base::B1024.pow(3)` returns the scaling factor `1024`.
     pub fn exponent(&self) -> i32 {
         *self as i32
     }
@@ -145,6 +151,8 @@ impl fmt::Display for Prefix {
 impl TryFrom<i32> for Prefix {
     type Error = SIUnitsError;
 
+    /// Builds a `Prefix` from a `i32` if successful, otherwise returns a
+    /// `SIUnitsError::ExponentParsing()` error.
     fn try_from(value: i32) -> Result<Self> {
         match value {
             -24 => Ok(Self::Yocto),

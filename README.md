@@ -10,7 +10,7 @@
 
 Format value with units according to SI ([système international d’unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 
-_Version requirement: rustc 1.25+_
+_Version requirement: rustc 1.26+_
 
 ```toml
 [dependencies]
@@ -22,15 +22,50 @@ pretty-units = "0.1"
 
 Auto-format struct members:
 
-```rust,ignore
-use pretty_units::{units, units::seconds};
+```rust
+// use pretty_units::{units, units::seconds};
 
-#[derive(Debug)]
-struct Sample {
-    #[units(seconds)]
-    value: u16,
-}
+// #[derive(Debug)]
+// struct Sample {
+//     #[units(seconds)]
+//     value: u16,
+// }
+use std::convert::From;
+use pretty_units::prelude::*;
+
+let actual = Value::from(0.123);
+let expected = Value {
+    mantissa: 123f64,
+    base: Base::B1000,
+    prefix: Some(Prefix::Milli),
+};
+assert_eq!(actual, expected);
 ```
+
+## Run code-coverage
+
+Install the llvm-tools-preview component and grcov
+
+```sh
+rustup component add llvm-tools-preview
+cargo install grcov
+```
+
+Install nightly
+
+```sh
+rustup toolchain install nightly
+```
+
+The following make invocation will switch to nigthly run the tests using
+Cargo, and output coverage HTML report in `./coverage/`
+
+```sh
+make coverage
+```
+
+The coverage report is located in `./coverage/index.html`
+
 
 
 ## License

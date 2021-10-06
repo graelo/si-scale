@@ -1,8 +1,11 @@
-/// Represents the base for units Prefix.
+/// Represents the base for units [Prefix](crate::prefix::Prefix).
 ///
 #[derive(Debug, PartialEq)]
 pub enum Base {
+    /// The most common base, where 1 k means `1000,` 1 M means `1000^2`, ...
     B1000,
+    /// A very common base for bibytes, where 1 kiB means `1024`, 1 MiB means
+    /// `1024 * 1024`, ...
     B1024,
 }
 
@@ -38,7 +41,9 @@ impl Base {
         }
     }
 
-    /// Raises self to the power of the provided `base_exponent`.
+    /// This helper function returns a `f64` scaling factor for the mantissa,
+    /// obtained by raising self to the power of the provided `exponent`
+    /// divided by 3.
     ///
     /// # Example
     ///
@@ -46,12 +51,13 @@ impl Base {
     /// use pretty_units::base::Base;
     ///
     /// assert_eq!(Base::B1000.pow(9), 1e9);
+    /// assert_eq!(Base::B1024.pow(3), 1024f64)
     /// ```
     ///
-    pub fn pow(&self, base_exponent: i32) -> f64 {
+    pub fn pow(&self, exponent: i32) -> f64 {
         match self {
-            Self::B1000 => 1000f64.powf(base_exponent as f64 / 3f64),
-            Self::B1024 => 1024f64.powf(base_exponent as f64 / 3f64),
+            Self::B1000 => 1000f64.powf(exponent as f64 / 3f64),
+            Self::B1024 => 1024f64.powf(exponent as f64 / 3f64),
         }
     }
 }

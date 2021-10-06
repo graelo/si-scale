@@ -182,6 +182,14 @@ impl Allowed {
     /// let actual = allowed_prefixes.closest_prefix_below(exponent);
     /// let expected = Some(Prefix::Milli);
     /// assert_eq!(actual, expected);
+    ///
+    ///
+    /// let allowed_prefixes = Allowed::Custom(vec![]);
+    ///
+    /// let exponent = 3;
+    /// let actual = allowed_prefixes.closest_prefix_below(exponent);
+    /// let expected = None;
+    /// assert_eq!(actual, expected);
     /// ```
     ///
     pub fn closest_prefix_below(&self, exponent: i32) -> Option<Prefix> {

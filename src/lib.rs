@@ -40,6 +40,31 @@
 //! assert_eq!(actual, expected);
 //! ```
 //!
+//! ## Run code-coverage
+//!
+//! Install the llvm-tools-preview component and grcov
+//!
+//! ```sh
+//! rustup component add llvm-tools-preview
+//! cargo install grcov
+//! ```
+//!
+//! Install nightly
+//!
+//! ```sh
+//! rustup toolchain install nightly
+//! ```
+//!
+//! The following make invocation will switch to nigthly run the tests using
+//! Cargo, and output coverage HTML report in `./coverage/`
+//!
+//! ```sh
+//! make coverage
+//! ```
+//!
+//! The coverage report is located in `./coverage/index.html`
+//!
+//!
 //!
 //! ## License
 //!
