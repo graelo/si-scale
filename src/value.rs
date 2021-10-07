@@ -32,8 +32,8 @@ use crate::prefix::Allowed;
 /// let actual = Value::from(0.123);
 /// let expected = Value {
 ///     mantissa: 123f64,
-///     base: Base::B1000,
 ///     prefix: Some(Prefix::Milli),
+///     base: Base::B1000,
 /// };
 /// assert_eq!(actual, expected);
 /// ```
@@ -41,8 +41,8 @@ use crate::prefix::Allowed;
 #[derive(Debug, PartialEq)]
 pub struct Value {
     pub mantissa: f64,
-    pub base: Base,
     pub prefix: Option<Prefix>,
+    pub base: Base,
 }
 
 impl Value {
@@ -57,8 +57,8 @@ impl Value {
     /// let actual = Value::new(-4.6e-5);
     /// let expected = Value {
     ///     mantissa: -46f64,
-    ///     base: Base::B1000,
     ///     prefix: Some(Prefix::Micro),
+    ///     base: Base::B1000,
     /// };
     /// assert_eq!(actual, expected);
     /// ```
@@ -74,8 +74,8 @@ impl Value {
     /// let actual = Value::new(-4.3e-5);
     /// let expected = Value {
     ///     mantissa: -43.00000000000001f64,
-    ///     base: Base::B1000,
     ///     prefix: Some(Prefix::Micro),
+    ///     base: Base::B1000,
     /// };
     /// assert_eq!(actual, expected);
     /// ```
@@ -98,8 +98,8 @@ impl Value {
     /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, Allowed::All);
     /// let expected = Value {
     ///     mantissa: 4f64,
-    ///     base: Base::B1024,
     ///     prefix: Some(Prefix::Mega),
+    ///     base: Base::B1024,
     /// };
     /// assert_eq!(actual, expected);
     /// ```
@@ -136,8 +136,8 @@ impl Value {
     ///
     /// let value = Value {
     ///     mantissa: 1.3f64,
-    ///     base: Base::B1000,
     ///     prefix: Some(Prefix::Unit),
+    ///     base: Base::B1000,
     /// };
     /// assert_eq!(value.to_f64(), 1.3);
     /// ```
@@ -207,16 +207,16 @@ mod tests {
         let actual = Value::new(1e-28);
         let expected = Value {
             mantissa: 1e-4f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Yocto),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-1.5e28);
         let expected = Value {
             mantissa: -1.5e4f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Yotta),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -226,16 +226,16 @@ mod tests {
         let actual = Value::new(1);
         let expected = Value {
             mantissa: 1f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Unit),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-1.3);
         let expected = Value {
             mantissa: -1.3f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Unit),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -245,72 +245,72 @@ mod tests {
         let actual = Value::new(0.1);
         let expected = Value {
             mantissa: 100f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.1);
         let expected = Value {
             mantissa: -100f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(0.001);
         let expected = Value {
             mantissa: 1f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.001);
         let expected = Value {
             mantissa: -1f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(0.000_1);
         let expected = Value {
             mantissa: 100.00000000000001f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Micro),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.000_1);
         let expected = Value {
             mantissa: -100.00000000000001f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Micro),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-1e-4);
         let expected = Value {
             mantissa: -100.00000000000001f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Micro),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-1e-8);
         let expected = Value {
             mantissa: -10f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Nano),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-1e-23);
         let expected = Value {
             mantissa: -10f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Yocto),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -320,64 +320,64 @@ mod tests {
         let actual = Value::new(0.12345);
         let expected = Value {
             mantissa: 123.45f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.12345);
         let expected = Value {
             mantissa: -123.45f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(0.01234);
         let expected = Value {
             mantissa: 12.34f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.01234);
         let expected = Value {
             mantissa: -12.34f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(0.001234);
         let expected = Value {
             mantissa: 1.234f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.001234);
         let expected = Value {
             mantissa: -1.234f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(0.000_123_400);
         let expected = Value {
             mantissa: 123.39999999999999f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Micro),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-0.000_123_400);
         let expected = Value {
             mantissa: -123.39999999999999f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Micro),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -387,32 +387,32 @@ mod tests {
         let actual = Value::new(1234);
         let expected = Value {
             mantissa: 1.234f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Kilo),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(123_456);
         let expected = Value {
             mantissa: 123.456f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Kilo),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(123_456_000);
         let expected = Value {
             mantissa: 123.456f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Mega),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new(-123_456_000);
         let expected = Value {
             mantissa: -123.456f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Mega),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -422,40 +422,40 @@ mod tests {
         let actual = Value::from(0.1);
         let expected = Value {
             mantissa: 100f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::from(-0.1);
         let expected = Value {
             mantissa: -100f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::from(1.5);
         let expected = Value {
             mantissa: 1.5f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Unit),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::from(-1.5);
         let expected = Value {
             mantissa: -1.5f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Unit),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::from(-1.5e28);
         let expected = Value {
             mantissa: -1.5e4f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Yotta),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -466,8 +466,8 @@ mod tests {
         let actual = Value::from(&number);
         let expected = Value {
             mantissa: 100f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }
@@ -500,40 +500,40 @@ mod tests {
         let actual = Value::new_with(1, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 1f64,
-            base: Base::B1024,
             prefix: Some(Prefix::Unit),
+            base: Base::B1024,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new_with(16, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 16f64,
-            base: Base::B1024,
             prefix: Some(Prefix::Unit),
+            base: Base::B1024,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new_with(1024, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 1f64,
-            base: Base::B1024,
             prefix: Some(Prefix::Kilo),
+            base: Base::B1024,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new_with(1.6 * 1024f32, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 1.600000023841858f64,
-            base: Base::B1024,
             prefix: Some(Prefix::Kilo),
+            base: Base::B1024,
         };
         assert_eq!(actual, expected);
 
         let actual = Value::new_with(16 * 1024 * 1024, Base::B1024, Allowed::All);
         let expected = Value {
             mantissa: 16f64,
-            base: Base::B1024,
             prefix: Some(Prefix::Mega),
+            base: Base::B1024,
         };
         assert_eq!(actual, expected);
     }
@@ -545,8 +545,8 @@ mod tests {
         let actual = Value::new_with(1325, Base::B1000, Allowed::UnitAndBelow);
         let expected = Value {
             mantissa: 1325f64,
-            base: Base::B1000,
             prefix: Some(Prefix::Unit),
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
 
@@ -554,8 +554,8 @@ mod tests {
         let actual = Value::new_with(0.015, Base::B1024, Allowed::UnitAndAbove);
         let expected = Value {
             mantissa: 0.015,
-            base: Base::B1024,
             prefix: Some(Prefix::Unit),
+            base: Base::B1024,
         };
         assert_eq!(actual, expected);
     }

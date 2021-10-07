@@ -58,8 +58,8 @@
 //! let actual = Value::from(0.123);
 //! let expected = Value {
 //!     mantissa: 123f64,
-//!     base: Base::B1000,
 //!     prefix: Some(Prefix::Milli),
+//!     base: Base::B1000,
 //! };
 //! assert_eq!(actual, expected);
 //! assert_eq!(Value::new(0.123), expected);
@@ -70,8 +70,8 @@
 //! let actual: Value = 1300i32.into();
 //! let expected = Value {
 //!     mantissa: 1.3f64,
-//!     base: Base::B1000,
 //!     prefix: Some(Prefix::Kilo),
+//!     base: Base::B1000,
 //! };
 //! assert_eq!(actual, expected);
 //!
@@ -80,13 +80,13 @@
 //! let expected = vec![
 //!     Value {
 //!         mantissa: 123f64,
-//!         base: Base::B1000,
 //!         prefix: Some(Prefix::Milli),
+//!         base: Base::B1000,
 //!     },
 //!     Value {
 //!         mantissa: -1.5e4f64,
-//!         base: Base::B1000,
 //!         prefix: Some(Prefix::Yotta),
+//!         base: Base::B1000,
 //!     },
 //! ];
 //! assert_eq!(actual, expected);
@@ -112,8 +112,8 @@
 //! let actual = Value::new_with(1234, Base::B1000, Allowed::UnitAndBelow);
 //! let expected = Value {
 //!     mantissa: 1234f64,
-//!     base: Base::B1000,
 //!     prefix: Some(Prefix::Unit),
+//!     base: Base::B1000,
 //! };
 //! assert_eq!(actual, expected);
 //! ```
