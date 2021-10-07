@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "pretty-units"
+name = "si-scale"
 version = "0.1.0"

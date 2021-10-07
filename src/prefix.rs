@@ -89,8 +89,8 @@ impl FromStr for Prefix {
     ///
     /// ```
     /// use std::str::FromStr;
-    /// use pretty_units::prelude::Prefix;
-    /// use pretty_units::Result;
+    /// use si_scale::prelude::Prefix;
+    /// use si_scale::Result;
     ///
     /// let actual= Prefix::from_str("y");
     /// let expected = Ok(Prefix::Yocto);
@@ -125,7 +125,7 @@ impl From<&Prefix> for &str {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::prelude::Prefix;
+    /// use si_scale::prelude::Prefix;
     ///
     /// let pfx = Prefix::Tera;
     /// let a_string = format!("value: {} {}B", 1.5, pfx);

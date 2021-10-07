@@ -19,7 +19,7 @@ impl Base {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::base::Base;
+    /// use si_scale::base::Base;
     ///
     /// let x: f32  = 5.4e4;
     /// let actual = Base::B1000.integral_exponent_for(x);
@@ -48,7 +48,7 @@ impl Base {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::base::Base;
+    /// use si_scale::base::Base;
     ///
     /// assert_eq!(Base::B1000.pow(9), 1e9);
     /// assert_eq!(Base::B1024.pow(3), 1024f64)

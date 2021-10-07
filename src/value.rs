@@ -27,7 +27,7 @@ use crate::prefix::Constraint;
 ///
 /// ```
 /// use std::convert::From;
-/// use pretty_units::{base::Base, value::Value, prefix::Prefix};
+/// use si_scale::{base::Base, value::Value, prefix::Prefix};
 ///
 /// let actual = Value::from(0.123);
 /// let expected = Value {
@@ -52,7 +52,7 @@ impl Value {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::prelude::{Base, Prefix, Value};
+    /// use si_scale::prelude::{Base, Prefix, Value};
     ///
     /// let actual = Value::new(-4.6e-5);
     /// let expected = Value {
@@ -69,7 +69,7 @@ impl Value {
     /// approximate representations. For instance:
     ///
     /// ```
-    /// use pretty_units::prelude::{Base, Prefix, Value};
+    /// use si_scale::prelude::{Base, Prefix, Value};
     ///
     /// let actual = Value::new(-4.3e-5);
     /// let expected = Value {
@@ -92,7 +92,7 @@ impl Value {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::prelude::{Constraint, Base, Prefix, Value};
+    /// use si_scale::prelude::{Constraint, Base, Prefix, Value};
     ///
     /// // 4 MiB
     /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, None);
@@ -133,7 +133,7 @@ impl Value {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::prelude::{Base, Prefix, Value};
+    /// use si_scale::prelude::{Base, Prefix, Value};
     ///
     /// let value = Value {
     ///     mantissa: 1.3f64,

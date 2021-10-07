@@ -2,7 +2,7 @@
 
 set -e
 
-CRATE=pretty-units
+CRATE=si-scale
 MSRV=1.50
 
 get_rust_version() {

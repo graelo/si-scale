@@ -1,9 +1,9 @@
-//! # pretty-units
+//! # si-scale
 //!
-//! [![crate](https://img.shields.io/crates/v/pretty-units.svg)](https://crates.io/crates/pretty-units)
-//! [![documentation](https://docs.rs/pretty-units/badge.svg)](https://docs.rs/pretty-units)
+//! [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
+//! [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
 //! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
-//! [![build status](https://github.com/u0xy/pretty-units/workflows/master/badge.svg)](https://github.com/u0xy/pretty-units/actions)
+//! [![build status](https://github.com/u0xy/si-scale/workflows/master/badge.svg)](https://github.com/u0xy/si-scale/actions)
 //!
 //!
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
@@ -12,7 +12,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! pretty-units = "0.1"
+//! si-scale = "0.1"
 //! ```
 //!
 //!
@@ -21,7 +21,7 @@
 //! Auto-format struct members:
 //!
 //! ```rust
-//! // use pretty_units::{units, units::seconds};
+//! // use si_scale::{units, units::seconds};
 //!
 //! // #[derive(Debug)]
 //! // struct Sample {
@@ -53,7 +53,7 @@
 //!
 //! ```rust
 //! use std::convert::From;
-//! use pretty_units::prelude::*;
+//! use si_scale::prelude::*;
 //!
 //! let actual = Value::from(0.123);
 //! let expected = Value {
@@ -106,7 +106,7 @@
 //! 1.3 ks or 0.415 B as 415 mB).
 //!
 //! ```rust
-//! use pretty_units::prelude::*;
+//! use si_scale::prelude::*;
 //!
 //! // Assume this is seconds, no kilo-seconds make sense.
 //! let actual = Value::new_with(1234, Base::B1000, Some(&Constraint::UnitAndBelow));
