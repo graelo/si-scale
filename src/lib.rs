@@ -109,7 +109,7 @@
 //! use pretty_units::prelude::*;
 //!
 //! // Assume this is seconds, no kilo-seconds make sense.
-//! let actual = Value::new_with(1234, Base::B1000, Allowed::UnitAndBelow);
+//! let actual = Value::new_with(1234, Base::B1000, Some(&Constraint::UnitAndBelow));
 //! let expected = Value {
 //!     mantissa: 1234f64,
 //!     prefix: Some(Prefix::Unit),
@@ -181,6 +181,6 @@ pub mod value;
 
 pub mod prelude {
     pub use crate::base::Base;
-    pub use crate::prefix::{Allowed, Prefix};
+    pub use crate::prefix::{Constraint, Prefix};
     pub use crate::value::Value;
 }

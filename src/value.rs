@@ -2,7 +2,7 @@ use crate::prefix::Prefix;
 use std::convert::From;
 
 use crate::base::Base;
-use crate::prefix::Allowed;
+use crate::prefix::Constraint;
 
 /// Represents a float value using its mantissa and unit Prefix in a base.
 ///
@@ -84,7 +84,7 @@ impl Value {
     where
         F: Into<f64>,
     {
-        Value::new_with(x, Base::B1000, Allowed::All)
+        Value::new_with(x, Base::B1000, None)
     }
 
     /// Returns a `Value` for the provided base.
@@ -92,10 +92,10 @@ impl Value {
     /// # Example
     ///
     /// ```
-    /// use pretty_units::prelude::{Allowed, Base, Prefix, Value};
+    /// use pretty_units::prelude::{Constraint, Base, Prefix, Value};
     ///
     /// // 4 MiB
-    /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, Allowed::All);
+    /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, None);
     /// let expected = Value {
     ///     mantissa: 4f64,
     ///     prefix: Some(Prefix::Mega),
@@ -104,7 +104,7 @@ impl Value {
     /// assert_eq!(actual, expected);
     /// ```
     ///
-    pub fn new_with<F>(x: F, base: Base, allowed_prefixes: Allowed) -> Self
+    pub fn new_with<F>(x: F, base: Base, prefix_constraint: Option<&Constraint>) -> Self
     where
         F: Into<f64>,
     {
@@ -112,8 +112,9 @@ impl Value {
 
         // Closest integral exponent (multiple of 3)
         let exponent: i32 = base.integral_exponent_for(x);
-        // Clamp the exponent using the allowed prefixes
-        let prefix = allowed_prefixes.closest_prefix_below(exponent);
+        // Clamp the exponent using the constraint on prefix
+        // let prefix = prefix_constraint.closest_prefix_below(exponent);
+        let prefix = Self::closest_prefix_for(exponent, prefix_constraint);
 
         let mantissa = match prefix {
             Some(prefix) => x / base.pow(prefix.exponent()),
@@ -160,6 +161,39 @@ impl Value {
     ///
     pub fn signum(&self) -> f64 {
         self.mantissa.signum()
+    }
+
+    /// Returns the closest prefix for the provided exponent, respecting the
+    /// optional constraint.
+    ///
+    fn closest_prefix_for(exponent: i32, constraint: Option<&Constraint>) -> Option<Prefix> {
+        use std::convert::TryFrom;
+
+        match constraint {
+            None => {
+                Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Yotta as i32)).ok()
+            }
+            Some(Constraint::UnitAndAbove) => {
+                Prefix::try_from(exponent.clamp(Prefix::Unit as i32, Prefix::Yotta as i32)).ok()
+            }
+            Some(Constraint::UnitAndBelow) => {
+                Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Unit as i32)).ok()
+            }
+            Some(Constraint::Custom(allowed_prefixes)) => {
+                if allowed_prefixes.is_empty() {
+                    return None;
+                }
+                let smallest_prefix = *allowed_prefixes.first().unwrap();
+                if exponent < smallest_prefix as i32 {
+                    return Some(smallest_prefix);
+                }
+                allowed_prefixes
+                    .iter()
+                    .take_while(|&&prefix| prefix as i32 <= exponent)
+                    .cloned()
+                    .last()
+            }
+        }
     }
 }
 
@@ -313,10 +347,7 @@ mod tests {
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
-    }
 
-    #[test]
-    fn small_values_with_decimals() {
         let actual = Value::new(0.12345);
         let expected = Value {
             mantissa: 123.45f64,
@@ -418,10 +449,10 @@ mod tests {
     }
 
     #[test]
-    fn from_f64() {
-        let actual = Value::from(0.1);
+    fn from_numbers() {
+        let actual = Value::from(0.1f32);
         let expected = Value {
-            mantissa: 100f64,
+            mantissa: 100.00000149011612f64,
             prefix: Some(Prefix::Milli),
             base: Base::B1000,
         };
@@ -451,6 +482,14 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
+        let actual = Value::from(15u32);
+        let expected = Value {
+            mantissa: 15f64,
+            prefix: Some(Prefix::Unit),
+            base: Base::B1000,
+        };
+        assert_eq!(actual, expected);
+
         let actual = Value::from(-1.5e28);
         let expected = Value {
             mantissa: -1.5e4f64,
@@ -461,12 +500,21 @@ mod tests {
     }
 
     #[test]
-    fn from_ref_f64() {
+    fn from_ref_number() {
         let number = 0.1;
         let actual = Value::from(&number);
         let expected = Value {
             mantissa: 100f64,
             prefix: Some(Prefix::Milli),
+            base: Base::B1000,
+        };
+        assert_eq!(actual, expected);
+
+        let number = 10_000_000u32;
+        let actual = Value::from(&number);
+        let expected = Value {
+            mantissa: 10f64,
+            prefix: Some(Prefix::Mega),
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -497,7 +545,7 @@ mod tests {
 
     #[test]
     fn large_value_with_base_1024() {
-        let actual = Value::new_with(1, Base::B1024, Allowed::All);
+        let actual = Value::new_with(1, Base::B1024, None);
         let expected = Value {
             mantissa: 1f64,
             prefix: Some(Prefix::Unit),
@@ -505,7 +553,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(16, Base::B1024, Allowed::All);
+        let actual = Value::new_with(16, Base::B1024, None);
         let expected = Value {
             mantissa: 16f64,
             prefix: Some(Prefix::Unit),
@@ -513,7 +561,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(1024, Base::B1024, Allowed::All);
+        let actual = Value::new_with(1024, Base::B1024, None);
         let expected = Value {
             mantissa: 1f64,
             prefix: Some(Prefix::Kilo),
@@ -521,7 +569,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(1.6 * 1024f32, Base::B1024, Allowed::All);
+        let actual = Value::new_with(1.6 * 1024f32, Base::B1024, None);
         let expected = Value {
             mantissa: 1.600000023841858f64,
             prefix: Some(Prefix::Kilo),
@@ -529,7 +577,7 @@ mod tests {
         };
         assert_eq!(actual, expected);
 
-        let actual = Value::new_with(16 * 1024 * 1024, Base::B1024, Allowed::All);
+        let actual = Value::new_with(16 * 1024 * 1024, Base::B1024, None);
         let expected = Value {
             mantissa: 16f64,
             prefix: Some(Prefix::Mega),
@@ -542,7 +590,7 @@ mod tests {
     fn values_with_prefix_constraints() {
         // For instance, seconds are never expressed as kilo-seconds, so
         // we must use constraints.
-        let actual = Value::new_with(1325, Base::B1000, Allowed::UnitAndBelow);
+        let actual = Value::new_with(1325, Base::B1000, Some(&Constraint::UnitAndBelow));
         let expected = Value {
             mantissa: 1325f64,
             prefix: Some(Prefix::Unit),
@@ -551,12 +599,158 @@ mod tests {
         assert_eq!(actual, expected);
 
         // In the same spirit, there can be no milli-bytes.
-        let actual = Value::new_with(0.015, Base::B1024, Allowed::UnitAndAbove);
+        let actual = Value::new_with(0.015, Base::B1024, Some(&Constraint::UnitAndAbove));
         let expected = Value {
             mantissa: 0.015,
             prefix: Some(Prefix::Unit),
             base: Base::B1024,
         };
+        assert_eq!(actual, expected);
+    }
+
+    /// If no prefix constraint is set, then the function returns the best
+    /// prefix if the exponent is a multiple of 3 and between `-24` and `24`
+    /// (incl.).
+    #[test]
+    fn closest_prefix_without_constraint() {
+        let exponent = -24;
+        let actual = Value::closest_prefix_for(exponent, None);
+        let expected = Some(Prefix::Yocto);
+        assert_eq!(actual, expected);
+
+        let exponent = 0;
+        let actual = Value::closest_prefix_for(exponent, None);
+        let expected = Some(Prefix::Unit);
+        assert_eq!(actual, expected);
+
+        let exponent = 24;
+        let actual = Value::closest_prefix_for(exponent, None);
+        let expected = Some(Prefix::Yotta);
+        assert_eq!(actual, expected);
+
+        let exponent = 30;
+        let actual = Value::closest_prefix_for(exponent, None);
+        let expected = Some(Prefix::Yotta);
+        assert_eq!(actual, expected);
+
+        let exponent = 1; // should never happen
+        let actual = Value::closest_prefix_for(exponent, None);
+        let expected = None;
+        assert_eq!(actual, expected);
+    }
+
+    /// If the allowed prefixes are `Constraint::UnitAndAbove`, the function
+    /// returns the corresponding prefix if the exponent is greater or equal
+    /// than `0`.
+    #[test]
+    fn closest_prefix_with_unitandabove() {
+        let constraint = Constraint::UnitAndAbove;
+
+        let exponent = -24;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Unit);
+        assert_eq!(actual, expected);
+
+        let exponent = 0;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Unit);
+        assert_eq!(actual, expected);
+
+        let exponent = 24;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Yotta);
+        assert_eq!(actual, expected);
+
+        let exponent = 30;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Yotta);
+        assert_eq!(actual, expected);
+
+        let exponent = 1; // should never happen
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = None;
+        assert_eq!(actual, expected);
+    }
+
+    /// If the allowed prefixes are `Constraint::UnitAndBelow`, the function
+    /// returns the corresponding prefix if the exponent is smaller or equal
+    /// than `0`.
+    #[test]
+    fn closest_prefix_with_unitandbelow() {
+        let constraint = Constraint::UnitAndBelow;
+
+        let exponent = -24;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Yocto);
+        assert_eq!(actual, expected);
+
+        let exponent = 0;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Unit);
+        assert_eq!(actual, expected);
+
+        let exponent = 24;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Unit);
+        assert_eq!(actual, expected);
+
+        let exponent = -30;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Yocto);
+        assert_eq!(actual, expected);
+
+        let exponent = -1; // should never happen
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = None;
+        assert_eq!(actual, expected);
+    }
+
+    /// If the allowed prefixes are `Constraint::Custom(...)`, the function
+    /// returns the corresponding prefix if the exponent matches one of them.
+    #[test]
+    fn closest_prefix_with_custom() {
+        let constraint = Constraint::Custom(vec![Prefix::Milli, Prefix::Unit, Prefix::Kilo]);
+
+        let exponent = -24;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Milli);
+        assert_eq!(actual, expected);
+
+        let exponent = -3;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Milli);
+        assert_eq!(actual, expected);
+
+        let exponent = 0;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Unit);
+        assert_eq!(actual, expected);
+
+        let exponent = 3;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Kilo);
+        assert_eq!(actual, expected);
+
+        let exponent = 24;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Kilo);
+        assert_eq!(actual, expected);
+
+        let exponent = -30;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Milli);
+        assert_eq!(actual, expected);
+
+        let exponent = -1; // should never happen
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = Some(Prefix::Milli);
+        assert_eq!(actual, expected);
+
+        let constraint = Constraint::Custom(vec![]);
+
+        let exponent = 3;
+        let actual = Value::closest_prefix_for(exponent, Some(&constraint));
+        let expected = None;
         assert_eq!(actual, expected);
     }
 }

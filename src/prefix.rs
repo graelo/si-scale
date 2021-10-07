@@ -2,8 +2,23 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
-pub mod allowed;
-pub use allowed::Allowed;
+pub mod constraint {
+    use super::Prefix;
+
+    /// Specifies a constraint on the SI [`Prefix`].
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum Constraint {
+        /// Only allows prefixes from `Unit` to `Yotta`.
+        UnitAndAbove,
+        /// Only allows prefixes from `Yocto` to `Unit`.
+        UnitAndBelow,
+        /// Only allows the specified prefixes (should be sorted in ascending
+        /// exponent order).
+        Custom(Vec<Prefix>),
+    }
+}
+
+pub use constraint::Constraint;
 
 use crate::{Result, SIUnitsError};
 
