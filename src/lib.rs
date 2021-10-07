@@ -28,6 +28,30 @@
 //! //     #[units(seconds)]
 //! //     value: u16,
 //! // }
+//! ```
+//!
+//!
+//! # Overview
+//!
+//! This crate parses and formats numbers using the SI scales: from 1 y
+//! (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is agnostic of units
+//! per-se; you can totally keep representing units with strings or
+//! [uom](https://crates.io/crates/uom), or something else.
+//!
+//! The central representation is the `Value` type, which holds the mantissa,
+//! the SI unit prefix (equivalent to an exponent), and the base which
+//! represents the cases where "1 k" means 1000 (most common) and the cases
+//! where "1 k" means 1024 (for kiB, MiB, etc).
+//!
+//!
+//! ## The low-level function `Value::new()`
+//!
+//! The low-level function `Value::new()` converts any number convertible to
+//! f64 into a `Value` using base 1000. The `Value` struct implements `From`
+//! for common numbers and delegates to `Value::new()`, so they are equivalent
+//! in practice. Here are a few examples.
+//!
+//! ```rust
 //! use std::convert::From;
 //! use pretty_units::prelude::*;
 //!
@@ -38,7 +62,69 @@
 //!     prefix: Some(Prefix::Milli),
 //! };
 //! assert_eq!(actual, expected);
+//! assert_eq!(Value::new(0.123), expected);
+//!
+//! let actual: Value = 0.123.into();
+//! assert_eq!(actual, expected);
+//!
+//! let actual: Value = 1300i32.into();
+//! let expected = Value {
+//!     mantissa: 1.3f64,
+//!     base: Base::B1000,
+//!     prefix: Some(Prefix::Kilo),
+//! };
+//! assert_eq!(actual, expected);
+//!
+//! let actual: Vec<Value> = vec![0.123f64, -1.5e28]
+//!     .iter().map(|n| n.into()).collect();
+//! let expected = vec![
+//!     Value {
+//!         mantissa: 123f64,
+//!         base: Base::B1000,
+//!         prefix: Some(Prefix::Milli),
+//!     },
+//!     Value {
+//!         mantissa: -1.5e4f64,
+//!         base: Base::B1000,
+//!         prefix: Some(Prefix::Yotta),
+//!     },
+//! ];
+//! assert_eq!(actual, expected);
 //! ```
+//!
+//! As you can see in the last example, values which scale are outside of the
+//! SI prefixes are represented using the closest SI prefix.
+//!
+//!
+//! ## The low-level function `Value::new_with()`
+//!
+//! The low-level `Value::new_with()` performs the same as `Value::new()`
+//! but also expects a base and constraints on the scales you want to use. In
+//! comparison with the simple `Value::new()`, this allows base 1024 scaling
+//! (for kiB, MiB, etc) and preventing upper scales for seconds or lower
+//! scales for integral units such as bytes (e.g. avoid writing 1300 sec as
+//! 1.3 ks or 0.415 B as 415 mB).
+//!
+//! ```rust
+//! use pretty_units::prelude::*;
+//!
+//! // Assume this is seconds, no kilo-seconds make sense.
+//! let actual = Value::new_with(1234, Base::B1000, Allowed::UnitAndBelow);
+//! let expected = Value {
+//!     mantissa: 1234f64,
+//!     base: Base::B1000,
+//!     prefix: Some(Prefix::Unit),
+//! };
+//! assert_eq!(actual, expected);
+//! ```
+//!
+//! Don't worry yet about the verbosity, the following parser helps with this.
+//!
+//!
+//! ## Parser
+//!
+//! The parser ...
+//!
 //!
 //! ## Run code-coverage
 //!

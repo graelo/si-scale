@@ -163,11 +163,34 @@ impl Value {
     }
 }
 
-impl From<f64> for Value {
-    fn from(x: f64) -> Self {
-        Value::new(x)
-    }
+macro_rules! impl_from_num_for_value {
+    ($t:ty) => {
+        impl From<$t> for Value {
+            fn from(x: $t) -> Self {
+                Value::new(x)
+            }
+        }
+
+        impl From<&$t> for Value {
+            fn from(x: &$t) -> Self {
+                Value::new(*x)
+            }
+        }
+    };
 }
+
+impl_from_num_for_value!(u8);
+impl_from_num_for_value!(i8);
+impl_from_num_for_value!(u16);
+impl_from_num_for_value!(i16);
+impl_from_num_for_value!(u32);
+impl_from_num_for_value!(i32);
+// impl_from_num_for_value!(u64);
+// impl_from_num_for_value!(i64);
+// impl_from_num_for_value!(usize);
+// impl_from_num_for_value!(isize);
+impl_from_num_for_value!(f32);
+impl_from_num_for_value!(f64);
 
 impl From<Value> for f64 {
     fn from(value: Value) -> Self {
@@ -438,6 +461,18 @@ mod tests {
     }
 
     #[test]
+    fn from_ref_f64() {
+        let number = 0.1;
+        let actual = Value::from(&number);
+        let expected = Value {
+            mantissa: 100f64,
+            base: Base::B1000,
+            prefix: Some(Prefix::Milli),
+        };
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
     fn into_f64() {
         let x = 0.1;
         let actual: f64 = Value::from(x).into();
@@ -499,6 +534,28 @@ mod tests {
             mantissa: 16f64,
             base: Base::B1024,
             prefix: Some(Prefix::Mega),
+        };
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn values_with_prefix_constraints() {
+        // For instance, seconds are never expressed as kilo-seconds, so
+        // we must use constraints.
+        let actual = Value::new_with(1325, Base::B1000, Allowed::UnitAndBelow);
+        let expected = Value {
+            mantissa: 1325f64,
+            base: Base::B1000,
+            prefix: Some(Prefix::Unit),
+        };
+        assert_eq!(actual, expected);
+
+        // In the same spirit, there can be no milli-bytes.
+        let actual = Value::new_with(0.015, Base::B1024, Allowed::UnitAndAbove);
+        let expected = Value {
+            mantissa: 0.015,
+            base: Base::B1024,
+            prefix: Some(Prefix::Unit),
         };
         assert_eq!(actual, expected);
     }
