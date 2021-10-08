@@ -1,5 +1,6 @@
 use crate::prefix::Prefix;
 use std::convert::From;
+use std::fmt;
 
 use crate::base::Base;
 use crate::prefix::Constraint;
@@ -197,6 +198,20 @@ impl Value {
     }
 }
 
+//
+// From Value -> f64
+//
+
+impl From<Value> for f64 {
+    fn from(value: Value) -> Self {
+        value.to_f64()
+    }
+}
+
+//
+// From number -> Value
+//
+
 macro_rules! impl_from_num_for_value {
     ($t:ty) => {
         impl From<$t> for Value {
@@ -213,6 +228,35 @@ macro_rules! impl_from_num_for_value {
     };
 }
 
+//
+// Display
+//
+
+impl fmt::Display for Value {
+    /// A basic way to display the value, which does not allow for mantissa
+    /// formatting.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use std::convert::From;
+    /// use si_scale::prelude::Value;
+    ///
+    /// let value: Value = 5.3e5.into();
+    ///
+    /// let actual = format!("{}", value);
+    /// let expected = "530 k".to_string();
+    /// assert_eq!(actual, expected);
+    /// ```
+    ///
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.prefix {
+            Some(prefix) => write!(f, "{} {}", self.mantissa, prefix),
+            None => write!(f, "{}", self.mantissa),
+        }
+    }
+}
+
 impl_from_num_for_value!(u8);
 impl_from_num_for_value!(i8);
 impl_from_num_for_value!(u16);
@@ -225,12 +269,6 @@ impl_from_num_for_value!(i32);
 // impl_from_num_for_value!(isize);
 impl_from_num_for_value!(f32);
 impl_from_num_for_value!(f64);
-
-impl From<Value> for f64 {
-    fn from(value: Value) -> Self {
-        value.to_f64()
-    }
-}
 
 #[cfg(test)]
 mod tests {
