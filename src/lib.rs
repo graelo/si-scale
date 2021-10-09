@@ -213,7 +213,6 @@ pub enum SIUnitsError {
 pub type Result<T> = std::result::Result<T, SIUnitsError>;
 
 pub mod base;
-#[macro_use]
 pub mod format;
 pub mod prefix;
 pub mod value;

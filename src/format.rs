@@ -95,7 +95,7 @@ pub fn separated_float(input: &str, separator: char) -> String {
     int_part_separated + &frac_part_separated
 }
 
-pub fn separate_thousands_backward(input: &str, separator: char) -> String {
+fn separate_thousands_backward(input: &str, separator: char) -> String {
     let mut output = String::with_capacity(input.len() + input.len() / 4);
     let mut pos = 0;
     for ch in input.chars().rev() {
@@ -111,7 +111,7 @@ pub fn separate_thousands_backward(input: &str, separator: char) -> String {
     output.chars().rev().collect()
 }
 
-pub fn separate_thousands_forward(input: &str, separator: char) -> String {
+fn separate_thousands_forward(input: &str, separator: char) -> String {
     let mut output = String::with_capacity(input.len() + input.len() / 4);
     let mut pos = 0;
     for ch in input.chars() {
