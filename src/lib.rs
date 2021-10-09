@@ -57,12 +57,13 @@
 //!
 //! ## The low-level API
 //!
-//! ### The low-level function `Value::new()`
+//! ### Creating a `Value` with `Value::new()`
 //!
-//! The low-level function `Value::new()` converts any number convertible to
-//! f64 into a `Value` using base 1000. The `Value` struct implements `From`
-//! for common numbers and delegates to `Value::new()`, so they are equivalent
-//! in practice. Here are a few examples.
+//! The low-level function [`Value::new()`][`crate::value::Value::new()`]
+//! converts any number convertible to f64 into a `Value` using base 1000. The
+//! `Value` struct implements `From` for common numbers and delegates to
+//! `Value::new()`, so they are equivalent in practice. Here are a few
+//! examples.
 //!
 //! ```rust
 //! use std::convert::From;
@@ -109,10 +110,11 @@
 //! SI prefixes are represented using the closest SI prefix.
 //!
 //!
-//! ### The low-level function `Value::new_with()`
+//! ### Creating a `Value` with `Value::new_with()`
 //!
-//! The low-level `Value::new_with()` performs the same as `Value::new()`
-//! but also expects a base and constraints on the scales you want to use. In
+//! The low-level [`Value::new_with()`][`crate::value::Value::new_with()`]
+//! operates similarly to [`Value::new()`][`crate::value::Value::new()`] but
+//! also expects a base and a constraint on the scales you want to use. In
 //! comparison with the simple `Value::new()`, this allows base 1024 scaling
 //! (for kiB, MiB, etc) and preventing upper scales for seconds or lower
 //! scales for integral units such as bytes (e.g. avoid writing 1300 sec as
@@ -134,9 +136,31 @@
 //! Don't worry yet about the verbosity, the following parser helps with this.
 //!
 //!
-//! ## Parser
+//! ### Formatting values
 //!
-//! The parser ...
+//! In this example, the number `x` is converted into a value and displayed
+//! using the most appropriate SI prefix. The user chose to constrain the
+//! prefix to be anything lower than `Unit` (1) because kilo-seconds make
+//! no sense.
+//!
+//! ```
+//! use si_scale::format_value;
+//! # fn main() {
+//! use si_scale::{value::Value, base::Base, prefix::Constraint};
+//!
+//! let x = 1234.5678;
+//! let v = Value::new_with(x, Base::B1000, Some(&Constraint::UnitAndBelow));
+//! let unit = "s";
+//!
+//! let actual = format!(
+//!     "result is {}{u}",
+//!     format_value!(v, "{:.5}", groupings: '_'),
+//!     u = unit
+//! );
+//! let expected = "result is 1_234.567_80 s";
+//! assert_eq!(actual, expected);
+//! # }
+//! ```
 //!
 //!
 //! ## Run code-coverage

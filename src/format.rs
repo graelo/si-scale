@@ -35,6 +35,11 @@
 ///
 /// # Example
 ///
+/// In this example, the number `x` is converted into a value and displayed
+/// using the most appropriate SI prefix. The user chose to constrain the
+/// prefix to be anything lower than `Unit` (1) because kilo-seconds make
+/// no sense.
+///
 /// ```
 /// use si_scale::format_value;
 /// # fn main() {
