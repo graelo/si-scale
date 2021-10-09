@@ -1,21 +1,3 @@
-#[macro_export]
-macro_rules! separated_float {
-    ($string:expr, $separator:expr) => {{
-        let idx = match $string.find('.') {
-            Some(i) => i,
-            None => $string.len(),
-        };
-
-        let int_part = (&$string[..idx]).to_owned();
-        let frac_part = &$string[idx..];
-
-        use crate::format::{separate_thousands_backward, separate_thousands_forward};
-        let int_part_separated = separate_thousands_backward(&int_part, $separator);
-        let frac_part_separated = separate_thousands_forward(&frac_part, $separator);
-        int_part_separated + &frac_part_separated
-    }};
-}
-
 /// Formats a [`Value`][`crate::value::Value`]'s mantissa and unit prefix (but
 /// not the unit itself). Because it simply delegates to
 /// [`format_args!()`][`std::format_args`], the output should be consumed by
@@ -53,25 +35,24 @@ macro_rules! separated_float {
 ///
 /// # Example
 ///
-///// ```
-///// use si_scale::{value::Value};
-///// use si_scale::format_value;
-///// use si_scale::separated_float;
-///// use si_scale::base::Base;
-///// use si_scale::prefix::Constraint;
-/////
-///// let x = 1234.5678;
-///// let v = Value::new_with(x, Base::B1000, Some(&Constraint::UnitAndBelow));
-///// let unit = "s";
-/////
-///// let actual = format!(
-/////     "result is {}{u}",
-/////     format_value!(v, "{:.5}", groupings: '_'),
-/////     u = unit
-///// );
-///// let expected = "result is 1_234.567_80 s";
-///// assert_eq!(actual, expected);
-///// ```
+/// ```
+/// use si_scale::format_value;
+/// # fn main() {
+/// use si_scale::{value::Value, base::Base, prefix::Constraint};
+///
+/// let x = 1234.5678;
+/// let v = Value::new_with(x, Base::B1000, Some(&Constraint::UnitAndBelow));
+/// let unit = "s";
+///
+/// let actual = format!(
+///     "result is {}{u}",
+///     format_value!(v, "{:.5}", groupings: '_'),
+///     u = unit
+/// );
+/// let expected = "result is 1_234.567_80 s";
+/// assert_eq!(actual, expected);
+/// # }
+/// ```
 ///
 #[macro_export]
 macro_rules! format_value {
@@ -85,10 +66,28 @@ macro_rules! format_value {
     ($name: ident, $fmt_str:literal, groupings: $separator:expr) => {
         format_args! {
             "{} {}",
-            separated_float!(format!($fmt_str, $name.mantissa), $separator),
+            $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
             $name.prefix.unwrap()
         }
     };
+}
+
+/// Given a input `&str` representing a digit (float or int), this function
+/// returns a `String` in which thousands separators are inserted both on the
+/// integral part and the fractional part.
+///
+pub fn separated_float(input: &str, separator: char) -> String {
+    let idx = match input.find('.') {
+        Some(i) => i,
+        None => input.len(),
+    };
+
+    let int_part = &input[..idx];
+    let frac_part = &input[idx..];
+
+    let int_part_separated = separate_thousands_backward(int_part, separator);
+    let frac_part_separated = separate_thousands_forward(frac_part, separator);
+    int_part_separated + &frac_part_separated
 }
 
 pub fn separate_thousands_backward(input: &str, separator: char) -> String {
@@ -127,7 +126,6 @@ pub fn separate_thousands_forward(input: &str, separator: char) -> String {
 mod tests {
     use super::*;
     use crate::format_value;
-    use crate::separated_float;
     use crate::value::Value;
 
     #[test]
@@ -176,19 +174,19 @@ mod tests {
 
     #[test]
     fn separate_float() {
-        let actual: String = separated_float!("123456.123456", '_');
+        let actual: String = separated_float("123456.123456", '_');
         let expected = "123_456.123_456";
         assert_eq!(actual, expected);
 
-        let actual: String = separated_float!("123456789.123456789", '_');
+        let actual: String = separated_float("123456789.123456789", '_');
         let expected = "123_456_789.123_456_789";
         assert_eq!(actual, expected);
 
-        let actual: String = separated_float!("1234567.1234567", '_');
+        let actual: String = separated_float("1234567.1234567", '_');
         let expected = "1_234_567.123_456_7";
         assert_eq!(actual, expected);
 
-        let actual: String = separated_float!("--1234567.1234567++", '_');
+        let actual: String = separated_float("--1234567.1234567++", '_');
         let expected = "--1_234_567.123_456_7++";
         assert_eq!(actual, expected);
     }

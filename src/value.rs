@@ -241,7 +241,7 @@ macro_rules! impl_from_num_for_value {
 }
 
 //
-// Display
+// Display (simplistic)
 //
 
 impl fmt::Display for Value {
