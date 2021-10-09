@@ -16,21 +16,6 @@
 //! ```
 //!
 //!
-//! ## Examples
-//!
-//! Auto-format struct members:
-//!
-//! ```rust
-//! // use si_scale::{units, units::seconds};
-//!
-//! // #[derive(Debug)]
-//! // struct Sample {
-//! //     #[units(seconds)]
-//! //     value: u16,
-//! // }
-//! ```
-//!
-//!
 //! # Overview
 //!
 //! This crate parses and formats numbers using the SI scales: from 1 y
@@ -43,8 +28,36 @@
 //! represents the cases where "1 k" means 1000 (most common) and the cases
 //! where "1 k" means 1024 (for kiB, MiB, etc).
 //!
+//! This crate provides 2 APIs: a low-level API, and a high-level API for
+//! convenience.
 //!
-//! ## The low-level function `Value::new()`
+//! For the low-level API, the typical use case is
+//!
+//! - first parse a number into a [`Value`][`crate::value::Value`]. You have
+//!   to specify the base, and maybe some constraint on the SI scales. See
+//!   [`Value::new()`][`crate::value::Value::new()`] and
+//!   [`Value::new_with()`][`crate::value::Value::new_with()`]
+//!
+//! - then display the `Value` either by yourself formatting the mantissa
+//!   and prefix (implements the `fmt::Display` trait), or using the provided
+//!   Formatter.
+//!
+//! For the high-level API, the typical use cases are
+//!
+//! 1. parse and display a number using the provided functions such as
+//!    `bibytes()`, `bytes()` or `seconds()`, they will choose for each number
+//!    the most appropriate SI scale.
+//!
+//! 2. In case you want the same control granularity as the low-level API
+//!    (e.g. constraining the scale in some way, using some base, specific
+//!    mantissa formatting), then you can build a custom function using
+//!    the provided macro `scale!()`. The existing functions such as
+//!    `bibytes()`, `bytes()`, `seconds()` are all built using the same macro.
+//!
+//!
+//! ## The low-level API
+//!
+//! ### The low-level function `Value::new()`
 //!
 //! The low-level function `Value::new()` converts any number convertible to
 //! f64 into a `Value` using base 1000. The `Value` struct implements `From`
@@ -96,7 +109,7 @@
 //! SI prefixes are represented using the closest SI prefix.
 //!
 //!
-//! ## The low-level function `Value::new_with()`
+//! ### The low-level function `Value::new_with()`
 //!
 //! The low-level `Value::new_with()` performs the same as `Value::new()`
 //! but also expects a base and constraints on the scales you want to use. In
@@ -176,6 +189,7 @@ pub enum SIUnitsError {
 pub type Result<T> = std::result::Result<T, SIUnitsError>;
 
 pub mod base;
+pub mod format;
 pub mod prefix;
 pub mod value;
 

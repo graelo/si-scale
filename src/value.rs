@@ -160,6 +160,18 @@ impl Value {
     /// - `-1.0` if the number is negative, `-0.0` or `NEG_INFINITY`
     /// - `NAN` if the number is `NAN`
     ///
+    /// # Example
+    ///
+    /// ```
+    /// use std::convert::From;
+    /// use si_scale::value::Value;
+    ///
+    /// let number = -1.5e3f32;
+    /// let value: Value = number.into();
+    ///
+    /// assert_eq!(value.signum(), number.signum() as f64);
+    /// ```
+    ///
     pub fn signum(&self) -> f64 {
         self.mantissa.signum()
     }
@@ -233,8 +245,9 @@ macro_rules! impl_from_num_for_value {
 //
 
 impl fmt::Display for Value {
-    /// A basic way to display the value, which does not allow for mantissa
-    /// formatting.
+    /// A basic but limited way to display the value; it does not allow
+    /// mantissa formatting. Consider using the
+    /// [`format_value!()`][`crate::format_value`] macro instead.
     ///
     /// # Example
     ///

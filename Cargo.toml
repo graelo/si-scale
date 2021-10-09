@@ -8,14 +8,16 @@ repository = "https://github.com/u0xy/si-scale"
 homepage = "https://github.com/u0xy/si-scale"
 documentation = "https://docs.rs/si-scale"
 description = """
-Formats value with values using the appropriate SI scale. Depending on the attached unit:
+Formats value using the appropriate SI scale.
+
+Depending on the attached unit:
 - 1337 -> 1.34 kB
 - 1337 -> 1_337 s
 - 0.1337 -> 133.7 ms
 - etc
 """
 
-keywords = ["units", "pretty", "human", "si", "scale"]
+keywords = ["units", "pretty", "human", "number", "si", "scale"]
 readme = "README.md"
 categories = ["value-formatting", "science"]
 exclude = ["/.github", "/.travis.yml", "/appveyor.yml"]
