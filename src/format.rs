@@ -46,7 +46,7 @@
 /// use si_scale::{value::Value, base::Base, prefix::Constraint};
 ///
 /// let x = 1234.5678;
-/// let v = Value::new_with(x, Base::B1000, Some(&Constraint::UnitAndBelow));
+/// let v = Value::new_with(x, Base::B1000, Constraint::UnitAndBelow);
 /// let unit = "s";
 ///
 /// let actual = format!(
@@ -165,7 +165,7 @@ mod tests {
         use crate::base::Base;
         use crate::prefix::Constraint;
 
-        let v = Value::new_with(x, Base::B1000, Some(&Constraint::UnitAndBelow));
+        let v = Value::new_with(x, Base::B1000, Constraint::UnitAndBelow);
         let unit = "s";
 
         let actual = format!(

@@ -164,7 +164,7 @@
 //! use si_scale::prelude::*;
 //!
 //! // Assume this is seconds, no kilo-seconds make sense.
-//! let actual = Value::new_with(1234, Base::B1000, Some(&Constraint::UnitAndBelow));
+//! let actual = Value::new_with(1234, Base::B1000, Constraint::UnitAndBelow);
 //! let expected = Value {
 //!     mantissa: 1234f64,
 //!     prefix: Some(Prefix::Unit),
@@ -189,7 +189,7 @@
 //! use si_scale::{value::Value, base::Base, prefix::Constraint};
 //!
 //! let x = 1234.5678;
-//! let v = Value::new_with(x, Base::B1000, Some(&Constraint::UnitAndBelow));
+//! let v = Value::new_with(x, Base::B1000, Constraint::UnitAndBelow);
 //! let unit = "s";
 //!
 //! let actual = format!(

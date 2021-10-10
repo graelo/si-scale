@@ -8,6 +8,11 @@ pub mod constraint {
     /// Specifies a constraint on the SI [`Prefix`].
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub enum Constraint {
+        /// Allows all prefixes from `Yocto` to `Yotta`.
+        ///
+        /// Note: having a `None` variant proves ergonomic
+        /// in the context of this library.
+        None,
         /// Only allows prefixes from `Unit` to `Yotta`.
         UnitAndAbove,
         /// Only allows prefixes from `Yocto` to `Unit`.
@@ -15,6 +20,12 @@ pub mod constraint {
         /// Only allows the specified prefixes (should be sorted in ascending
         /// exponent order).
         Custom(Vec<Prefix>),
+    }
+
+    impl AsRef<Constraint> for Constraint {
+        fn as_ref(&self) -> &Self {
+            &self
+        }
     }
 }
 

@@ -35,7 +35,7 @@ macro_rules! scale_fn {
         where
             F: Into<f64>,
         {
-            let value = Value::new_with(x, $crate::base::Base::$base_arg, Some(&$constraint_arg));
+            let value = Value::new_with(x, $crate::base::Base::$base_arg, $constraint_arg);
             format!(
                 "{}{}",
                 $crate::format_value!(value, $mantissa_fmt, groupings: $sep_arg),
@@ -66,7 +66,7 @@ where
     F: Into<f64>,
 {
     let constraint = Constraint::UnitAndBelow;
-    let value = Value::new_with(x, Base::B1000, Some(&constraint));
+    let value = Value::new_with(x, Base::B1000, constraint);
     format!("{}s", format_value!(value, "{:.3}"))
 }
 
