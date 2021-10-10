@@ -194,6 +194,7 @@ impl Value {
                 Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Yotta as i32))
                     .unwrap_or(Prefix::Unit)
             }
+            Constraint::UnitOnly => Prefix::Unit,
             Constraint::UnitAndAbove => {
                 Prefix::try_from(exponent.clamp(Prefix::Unit as i32, Prefix::Yotta as i32))
                     .unwrap_or(Prefix::Unit)
@@ -666,6 +667,15 @@ mod tests {
             mantissa: 0.015,
             prefix: Prefix::Unit,
             base: Base::B1024,
+        };
+        assert_eq!(actual, expected);
+
+        // The `UnitOnly` constraint prevents any scaling
+        let actual = Value::new_with(0.015, Base::B1000, Constraint::UnitOnly);
+        let expected = Value {
+            mantissa: 0.015,
+            prefix: Prefix::Unit,
+            base: Base::B1000,
         };
         assert_eq!(actual, expected);
     }

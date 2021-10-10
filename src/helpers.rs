@@ -143,6 +143,13 @@ scale_fn!(bytes,
           groupings: '_',
           unit: "B");
 
+scale_fn!(bytes_,
+          base: B1000,
+          constraint: UnitOnly,
+          mantissa_fmt: "{}",
+          groupings: '_',
+          unit: "B");
+
 scale_fn!(bytes1,
           base: B1000,
           constraint: UnitAndAbove,

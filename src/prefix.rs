@@ -13,6 +13,8 @@ pub mod constraint {
         /// Note: having a `None` variant proves ergonomic
         /// in the context of this library.
         None,
+        /// Only allows the `Unit` prefix, effectively preventing scaling.
+        UnitOnly,
         /// Only allows prefixes from `Unit` to `Yotta`.
         UnitAndAbove,
         /// Only allows prefixes from `Yocto` to `Unit`.

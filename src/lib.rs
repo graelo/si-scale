@@ -25,9 +25,6 @@
 //! ### Pre-defined helper functions
 //!
 //! You can use one of the predefined helper functions to format numbers:
-//! [`seconds()`](`crate::helpers::seconds()`),
-//! [`bytes()`](`crate::helpers::bytes()`),
-//! [`bibytes()`](`crate::helpers::bibytes()`):
 //!
 //! ```
 //! use si_scale::helpers::{seconds, seconds3};
@@ -40,6 +37,20 @@
 //! let expected = "13.000 µs";
 //! assert_eq!(actual, expected);
 //! ```
+//!
+//! Currently the helper functions are:
+//!
+//! | helper fn    | mantissa  | prefix constraint | base  | groupings | example                |
+//! | ---          | --        | ---               | ---   | ---       | ---                    |
+//! | `seconds()`  | `"{}"`    | `UnitAndBelow`    | B1000 | none      | `1.234567 µs`, `16 ms` |
+//! | `seconds3()` | `"{:.3}"` | `UnitAndBelow`    | B1000 | none      | `1.235 µs`, `9876 s`   |
+//! | ---          | --        | ---               | ---   | ---       | ---                    |
+//! | `bytes()`    | `"{}"`    | `UnitAndAbove`    | B1000 | `_`       | `1.234_567 kB`         |
+//! | `bytes_()`   | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1_234_567 B`          |
+//! | `bytes1()`   | `"{:.1}"` | `UnitAndAbove`    | B1000 | none      | `2.3 TB`               |
+//! | ---          | --        | ---               | ---   | ---       | ---                    |
+//! | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | `_`       | `1.234_567 MiB`        |
+//! | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1.2 GiB`              |
 //!
 //!
 //! ## Custom helper functions
