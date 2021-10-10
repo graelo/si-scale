@@ -1,5 +1,3 @@
-//! # si-scale
-//!
 //! [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
 //! [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
 //! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
@@ -17,15 +15,19 @@
 //!
 //! ## Getting started
 //!
-//! This crate parses and formats numbers using the [SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
+//! This crate parses and formats numbers using the
+//! [SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
 //! from 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is essentially
 //! agnostic of units per-se; you can totally keep representing units with
 //! strings or [uom](https://crates.io/crates/uom), or something else.
 //!
+//!
+//! ### Pre-defined helper functions
+//!
 //! You can use one of the predefined helper functions to format numbers:
-//! [`seconds()`][`crate::helpers::seconds()`],
-//! [`bytes()`][`crate::helpers::bytes()`],
-//! [`bibytes()`][`crate::helpers::bibytes()`]:
+//! [`seconds()`](`crate::helpers::seconds()`),
+//! [`bytes()`](`crate::helpers::bytes()`),
+//! [`bibytes()`](`crate::helpers::bibytes()`):
 //!
 //! ```
 //! use si_scale::helpers::{seconds, seconds3};
@@ -39,11 +41,17 @@
 //! assert_eq!(actual, expected);
 //! ```
 //!
+//!
+//! ## Custom helper functions
+//!
 //! To define your own format function, use the
-//! [`scale_fn!()`][`crate::scale_fn!()`] macro. For instance, let's define a
-//! formatting function for bits per sec which prints the mantissa with 2
-//! decimals, and also uses base 1024 (where 1 ki = 1024). Note that although
-//! we define the function in a separate module, this is not a requirement.
+//! [`scale_fn!()`](`crate::scale_fn!()`) macro. All pre-defined helper
+//! functions from this crate are defined using this macro.
+//!
+//! For instance, let's define a formatting function for bits per sec which
+//! prints the mantissa with 2 decimals, and also uses base 1024 (where 1 ki =
+//! 1024). Note that although we define the function in a separate module,
+//! this is not a requirement.
 //!
 //! ```
 //! mod unit_fmt {
@@ -108,7 +116,7 @@
 //!
 //! ## Overview
 //!
-//! The central representation is the [`Value`][`crate::value::Value`] type,
+//! The central representation is the [`Value`](`crate::value::Value`) type,
 //! which holds
 //!
 //! - the mantissa,
@@ -121,10 +129,10 @@
 //!
 //! For the low-level API, the typical use case is
 //!
-//! - first parse a number into a [`Value`][`crate::value::Value`]. For doing
+//! - first parse a number into a [`Value`](`crate::value::Value`). For doing
 //! this, you have to specify the base, and maybe some constraint on the SI
-//! scales. See [`Value::new()`][`crate::value::Value::new()`] and
-//! [`Value::new_with()`][`crate::value::Value::new_with()`]
+//! scales. See [`Value::new()`](`crate::value::Value::new()`) and
+//! [`Value::new_with()`](`crate::value::Value::new_with()`)
 //!
 //! - then display the `Value` either by yourself formatting the mantissa
 //!   and prefix (implements the `fmt::Display` trait), or using the provided
@@ -215,7 +223,7 @@
 //!
 //! #### Creating a `Value` with `Value::new()`
 //!
-//! The low-level function [`Value::new()`][`crate::value::Value::new()`]
+//! The low-level function [`Value::new()`](`crate::value::Value::new()`)
 //! converts any number convertible to f64 into a `Value` using base 1000. The
 //! `Value` struct implements `From` for common numbers and delegates to
 //! `Value::new()`, so they are equivalent in practice. Here are a few
@@ -268,8 +276,8 @@
 //!
 //! #### Creating a `Value` with `Value::new_with()`
 //!
-//! The low-level [`Value::new_with()`][`crate::value::Value::new_with()`]
-//! operates similarly to [`Value::new()`][`crate::value::Value::new()`] but
+//! The low-level [`Value::new_with()`](`crate::value::Value::new_with()`)
+//! operates similarly to [`Value::new()`](`crate::value::Value::new()`) but
 //! also expects a base and a constraint on the scales you want to use. In
 //! comparison with the simple `Value::new()`, this allows base 1024 scaling
 //! (for kiB, MiB, etc) and preventing upper scales for seconds or lower

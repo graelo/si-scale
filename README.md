@@ -1,15 +1,11 @@
+# `si-scale`
+
 [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
 [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
 [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
-[![build status](https://github.com/u0xy/si-scale/workflows/master/badge.svg)](https://github.com/u0xy/si-scale/actions)
+[![build status](https://github.com/u0xy/si-scale/workflows/main/badge.svg)](https://github.com/u0xy/si-scale/actions)
 
 <!-- cargo-sync-readme start -->
-
-
-[crate](https://crates.io/crates/si-scale)
-[documentation](https://docs.rs/si-scale)
-[minimum rustc 1.8](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
-[build status](https://github.com/u0xy/si-scale/actions)
 
 Format value with units according to SI ([système international d’unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 
@@ -20,18 +16,34 @@ _Version requirement: rustc 1.50+_
 si-scale = "0.1"
 ```
 
+| helper fn    | mantissa  | prefix constraint | base  | groupings | example                |
+| ---          | --        | ---               | ---   | ---       | ---                    |
+| `seconds()`  | `"{}"`    | `UnitAndBelow`    | B1000 | none      | `1.234567 µs`, `16 ms` |
+| `seconds3()` | `"{:.3}"` | `UnitAndBelow`    | B1000 | none      | `1.235 µs`, `9876 s`   |
+| ---          | --        | ---               | ---   | ---       | ---                    |
+| `bytes()`    | `"{}"`    | `UnitAndAbove`    | B1000 | `_`       | `1.234_567 kB`         |
+| `bytes_()`   | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1_234_567 B`          |
+| `bytes1()`   | `"{:.1}"` | `UnitAndAbove`    | B1000 | none      | `2.3 TB`               |
+| ---          | --        | ---               | ---   | ---       | ---                    |
+| `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | `_`       | `1.234_567 MiB`        |
+| `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1.2 GiB`              |
+
 
 ## Getting started
 
-This crate parses and formats numbers using the [SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
+This crate parses and formats numbers using the
+[SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
 from 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is essentially
 agnostic of units per-se; you can totally keep representing units with
 strings or [uom](https://crates.io/crates/uom), or something else.
 
+
+### Pre-defined helper functions
+
 You can use one of the predefined helper functions to format numbers:
-[`seconds()`][`crate::helpers::seconds()`],
-[`bytes()`][`crate::helpers::bytes()`],
-[`bibytes()`][`crate::helpers::bibytes()`]:
+[`seconds()`](`crate::helpers::seconds\(\)`),
+[`bytes()`](`crate::helpers::bytes\(\)`),
+[`bibytes()`](`crate::helpers::bibytes\(\)`):
 
 ```rust
 use si_scale::helpers::{seconds, seconds3};
@@ -45,11 +57,17 @@ let expected = "13.000 µs";
 assert_eq!(actual, expected);
 ```
 
+
+## Custom helper functions
+
 To define your own format function, use the
-[`scale_fn!()`][`crate::scale_fn!()`] macro. For instance, let's define a
-formatting function for bits per sec which prints the mantissa with 2
-decimals, and also uses base 1024 (where 1 ki = 1024). Note that although
-we define the function in a separate module, this is not a requirement.
+[`scale_fn!()`](`crate::scale_fn!\(\)`) macro. All pre-defined helper
+functions from this crate are defined using this macro.
+
+For instance, let's define a formatting function for bits per sec which
+prints the mantissa with 2 decimals, and also uses base 1024 (where 1 ki =
+1024). Note that although we define the function in a separate module,
+this is not a requirement.
 
 ```rust
 mod unit_fmt {
@@ -114,7 +132,7 @@ With base = 1024, 1ki = 1024, 1Mi = 1024 * 1024, etc.
 
 ## Overview
 
-The central representation is the [`Value`][`crate::value::Value`] type,
+The central representation is the [`Value`](`crate::value::Value`) type,
 which holds
 
 - the mantissa,
@@ -127,10 +145,10 @@ convenience.
 
 For the low-level API, the typical use case is
 
-- first parse a number into a [`Value`][`crate::value::Value`]. For doing
+- first parse a number into a [`Value`](`crate::value::Value`). For doing
 this, you have to specify the base, and maybe some constraint on the SI
-scales. See [`Value::new()`][`crate::value::Value::new()`] and
-[`Value::new_with()`][`crate::value::Value::new_with()`]
+scales. See [`Value::new()`](`crate::value::Value::new\(\)`) and
+[`Value::new_with()`](`crate::value::Value::new_with\(\)`)
 
 - then display the `Value` either by yourself formatting the mantissa
   and prefix (implements the `fmt::Display` trait), or using the provided
