@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust: [1.26.0, stable]
+        rust: [1.50.0, stable]
     steps:
       - name: Rust install
         uses: actions-rs/toolchain@v1

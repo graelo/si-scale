@@ -2,13 +2,13 @@
 //!
 //! [![crate](https://img.shields.io/crates/v/pretty-units.svg)](https://crates.io/crates/pretty-units)
 //! [![documentation](https://docs.rs/pretty-units/badge.svg)](https://docs.rs/pretty-units)
-//! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.25+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
+//! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 //! [![build status](https://github.com/u0xy/pretty-units/workflows/master/badge.svg)](https://github.com/u0xy/pretty-units/actions)
 //!
 //!
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 //!
-//! _Version requirement: rustc 1.26+_
+//! _Version requirement: rustc 1.50+_
 //!
 //! ```toml
 //! [dependencies]
