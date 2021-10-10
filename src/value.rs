@@ -10,15 +10,25 @@ use crate::prefix::Constraint;
 /// With base = 1000, 1k = 1000, 1M = 1_000_000, 1m = 0.001, 1µ = 0.000_001,
 /// etc.
 ///
-/// | min         | max              | exponent | magnitude | prefix                |
-/// | ---         | ---              | ---      | ---       | ----                  |
-/// | ..          | ..               | -3       | -9        | `Prefix::Nano`  |
-/// | 0.000\_001  | 0.001            | -2       | -6        | `Prefix::Micro` |
-/// | 0.001       | 1                | -1       | -3        | `Prefix::Milli` |
-/// | 1           | 1_000            | 0        | 0         | `Prefix::Unit`  |
-/// | 1000        | 1\_000\_000      | 1        | 3         | `Prefix::Kilo`  |
-/// | 1\_000\_000 | 1\_000\_000\_000 | 2        | 6         | `Prefix::Mega`  |
-/// | ..          | ..               | 3        | 9         | `Prefix::Tera`  |
+/// | min (incl.) | max (excl.)      | magnitude | prefix          |
+/// | ---         | ---              | ---       | ----            |
+/// | ..          | ..               | -24       | `Prefix::Yocto` |
+/// | ..          | ..               | -21       | `Prefix::Zepto` |
+/// | ..          | ..               | -18       | `Prefix::Atto`  |
+/// | ..          | ..               | -15       | `Prefix::Femto` |
+/// | ..          | ..               | -12       | `Prefix::Pico`  |
+/// | ..          | ..               | -9        | `Prefix::Nano`  |
+/// | 0.000\_001  | 0.001            | -6        | `Prefix::Micro` |
+/// | 0.001       | 1                | -3        | `Prefix::Milli` |
+/// | 1           | 1_000            | 0         | `Prefix::Unit`  |
+/// | 1000        | 1\_000\_000      | 3         | `Prefix::Kilo`  |
+/// | 1\_000\_000 | 1\_000\_000\_000 | 6         | `Prefix::Mega`  |
+/// | ..          | ..               | 9         | `Prefix::Giga`  |
+/// | ..          | ..               | 12        | `Prefix::Tera`  |
+/// | ..          | ..               | 15        | `Prefix::Peta`  |
+/// | ..          | ..               | 18        | `Prefix::Exa`   |
+/// | ..          | ..               | 21        | `Prefix::Zetta` |
+/// | ..          | ..               | 24        | `Prefix::Yotta` |
 ///
 /// The base is usually 1000, but can also be 1024 (bibytes).
 ///

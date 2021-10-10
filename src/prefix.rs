@@ -24,7 +24,7 @@ pub mod constraint {
 
     impl AsRef<Constraint> for Constraint {
         fn as_ref(&self) -> &Self {
-            &self
+            self
         }
     }
 }

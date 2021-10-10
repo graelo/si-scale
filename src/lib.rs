@@ -5,7 +5,6 @@
 //! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 //! [![build status](https://github.com/u0xy/si-scale/workflows/master/badge.svg)](https://github.com/u0xy/si-scale/actions)
 //!
-//!
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 //!
 //! _Version requirement: rustc 1.50+_
@@ -16,13 +15,12 @@
 //! ```
 //!
 //!
-//! # Getting started
+//! ## Getting started
 //!
-//! This crate parses and formats numbers using the [SI
-//! scales](https://en.wikipedia.org/wiki/International_System_of_Units): from
-//! 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is agnostic of units
-//! per-se; you can totally keep representing units with strings or
-//! [uom](https://crates.io/crates/uom), or something else.
+//! This crate parses and formats numbers using the [SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
+//! from 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is essentially
+//! agnostic of units per-se; you can totally keep representing units with
+//! strings or [uom](https://crates.io/crates/uom), or something else.
 //!
 //! You can use one of the predefined helper functions to format numbers:
 //! [`seconds()`][`crate::helpers::seconds()`],
@@ -77,7 +75,38 @@
 //!
 //! ```
 //!
-//! # Overview
+//!
+//! ## SI Scales
+//!
+//! With base = 1000, 1k = 1000, 1M = 1\_000\_000, 1m = 0.001, 1µ = 0.000\_001,
+//! etc.
+//!
+//! | min (incl.) | max (excl.)      | magnitude | prefix          |
+//! | ---         | ---              | ---       | ----            |
+//! | ..          | ..               | -24       | `Prefix::Yocto` |
+//! | ..          | ..               | -21       | `Prefix::Zepto` |
+//! | ..          | ..               | -18       | `Prefix::Atto`  |
+//! | ..          | ..               | -15       | `Prefix::Femto` |
+//! | ..          | ..               | -12       | `Prefix::Pico`  |
+//! | ..          | ..               | -9        | `Prefix::Nano`  |
+//! | 0.000\_001  | 0.001            | -6        | `Prefix::Micro` |
+//! | 0.001       | 1                | -3        | `Prefix::Milli` |
+//! | 1           | 1_000            | 0         | `Prefix::Unit`  |
+//! | 1000        | 1\_000\_000      | 3         | `Prefix::Kilo`  |
+//! | 1\_000\_000 | 1\_000\_000\_000 | 6         | `Prefix::Mega`  |
+//! | ..          | ..               | 9         | `Prefix::Giga`  |
+//! | ..          | ..               | 12        | `Prefix::Tera`  |
+//! | ..          | ..               | 15        | `Prefix::Peta`  |
+//! | ..          | ..               | 18        | `Prefix::Exa`   |
+//! | ..          | ..               | 21        | `Prefix::Zetta` |
+//! | ..          | ..               | 24        | `Prefix::Yotta` |
+//!
+//!
+//! The base is usually 1000, but can also be 1024 (bibytes).
+//!
+//! With base = 1024, 1ki = 1024, 1Mi = 1024 * 1024, etc.
+//!
+//! ## Overview
 //!
 //! The central representation is the [`Value`][`crate::value::Value`] type,
 //! which holds
@@ -115,7 +144,7 @@
 //!    macro.
 //!
 //!
-//! ## The high-level API
+//! ### The high-level API
 //!
 //! The `seconds3()` function parses a number into a `Value` and displays it
 //! using 3 decimals and the appropriate scale for seconds (`UnitAndBelow`),
@@ -182,9 +211,9 @@
 //! ```
 //!
 //!
-//! ## The low-level API
+//! ### The low-level API
 //!
-//! ### Creating a `Value` with `Value::new()`
+//! #### Creating a `Value` with `Value::new()`
 //!
 //! The low-level function [`Value::new()`][`crate::value::Value::new()`]
 //! converts any number convertible to f64 into a `Value` using base 1000. The
@@ -237,7 +266,7 @@
 //! SI prefixes are represented using the closest SI prefix.
 //!
 //!
-//! ### Creating a `Value` with `Value::new_with()`
+//! #### Creating a `Value` with `Value::new_with()`
 //!
 //! The low-level [`Value::new_with()`][`crate::value::Value::new_with()`]
 //! operates similarly to [`Value::new()`][`crate::value::Value::new()`] but
@@ -263,7 +292,7 @@
 //! Don't worry yet about the verbosity, the following parser helps with this.
 //!
 //!
-//! ### Formatting values
+//! #### Formatting values
 //!
 //! In this example, the number `x` is converted into a value and displayed
 //! using the most appropriate SI prefix. The user chose to constrain the
