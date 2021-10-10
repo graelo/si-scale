@@ -63,16 +63,24 @@
 macro_rules! format_value {
     ($name:ident, $fmt_str:literal) => {
         format_args! {
-            concat!($fmt_str, " {}"),
+            concat!($fmt_str, " {}{}"),
             $name.mantissa,
-            $name.prefix
+            $name.prefix,
+            match $name.base {
+                $crate::base::Base::B1000 => "",
+                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+            },
         }
     };
     ($name:ident, $fmt_str:literal, groupings: $separator:expr) => {
         format_args! {
-            "{} {}",
+            "{} {}{}",
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
-            $name.prefix
+            $name.prefix,
+            match $name.base {
+                $crate::base::Base::B1000 => "",
+                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+            },
         }
     };
 }

@@ -16,27 +16,86 @@
 //! ```
 //!
 //!
-//! # Overview
+//! # Getting started
 //!
-//! This crate parses and formats numbers using the SI scales: from 1 y
-//! (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is agnostic of units
+//! This crate parses and formats numbers using the [SI
+//! scales](https://en.wikipedia.org/wiki/International_System_of_Units): from
+//! 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is agnostic of units
 //! per-se; you can totally keep representing units with strings or
 //! [uom](https://crates.io/crates/uom), or something else.
 //!
-//! The central representation is the `Value` type, which holds the mantissa,
-//! the SI unit prefix (equivalent to an exponent), and the base which
-//! represents the cases where "1 k" means 1000 (most common) and the cases
-//! where "1 k" means 1024 (for kiB, MiB, etc).
+//! You can use one of the predefined helper functions to format numbers:
+//! [`seconds()`][`crate::helpers::seconds()`],
+//! [`bytes()`][`crate::helpers::bytes()`],
+//! [`bibytes()`][`crate::helpers::bibytes()`]:
+//!
+//! ```
+//! use si_scale::helpers::{seconds, seconds3};
+//!
+//! let actual = format!("{}", seconds(1.3e-5));
+//! let expected = "13 µs";
+//! assert_eq!(actual, expected);
+//!
+//! let actual = format!("{}", seconds3(1.3e-5));
+//! let expected = "13.000 µs";
+//! assert_eq!(actual, expected);
+//! ```
+//!
+//! To define your own format function, use the
+//! [`scale_fn!()`][`crate::scale_fn!()`] macro. For instance, let's define a
+//! formatting function for bits per sec which prints the mantissa with 2
+//! decimals, and also uses base 1024 (where 1 ki = 1024). Note that although
+//! we define the function in a separate module, this is not a requirement.
+//!
+//! ```
+//! mod unit_fmt {
+//!     use si_scale::scale_fn;
+//!     use si_scale::prelude::Value;
+//!
+//!     // defines the `bits_per_sec()` function
+//!     scale_fn!(bits_per_sec,
+//!               base: B1024,
+//!               constraint: UnitAndAbove,
+//!               mantissa_fmt: "{:.2}",
+//!               groupings: '_',
+//!               unit: "bit/s");
+//! }
+//!
+//! use unit_fmt::bits_per_sec;
+//!
+//! fn main() {
+//!     let x = 2.1 * 1024 as f32;
+//!     let actual = format!("throughput: {:>15}", bits_per_sec(x));
+//!     let expected = "throughput:    2.10 kibit/s";
+//!     assert_eq!(actual, expected);
+//!
+//!     let x = 2;
+//!     let actual = format!("throughput: {}", bits_per_sec(x));
+//!     let expected = "throughput: 2.00 bit/s";
+//!     assert_eq!(actual, expected);
+//! }
+//!
+//! ```
+//!
+//! # Overview
+//!
+//! The central representation is the [`Value`][`crate::value::Value`] type,
+//! which holds
+//!
+//! - the mantissa,
+//! - the SI unit prefix (such as "kilo", "Mega", etc),
+//! - and the base which represents the cases where "1 k" means 1000 (most
+//! common) and the cases where "1 k" means 1024 (for kiB, MiB, etc).
 //!
 //! This crate provides 2 APIs: a low-level API, and a high-level API for
 //! convenience.
 //!
 //! For the low-level API, the typical use case is
 //!
-//! - first parse a number into a [`Value`][`crate::value::Value`]. You have
-//!   to specify the base, and maybe some constraint on the SI scales. See
-//!   [`Value::new()`][`crate::value::Value::new()`] and
-//!   [`Value::new_with()`][`crate::value::Value::new_with()`]
+//! - first parse a number into a [`Value`][`crate::value::Value`]. For doing
+//! this, you have to specify the base, and maybe some constraint on the SI
+//! scales. See [`Value::new()`][`crate::value::Value::new()`] and
+//! [`Value::new_with()`][`crate::value::Value::new_with()`]
 //!
 //! - then display the `Value` either by yourself formatting the mantissa
 //!   and prefix (implements the `fmt::Display` trait), or using the provided
@@ -50,39 +109,42 @@
 //!
 //! 2. In case you want the same control granularity as the low-level API
 //!    (e.g. constraining the scale in some way, using some base, specific
-//!    mantissa formatting), then you can build a custom function using
-//!    the provided macro `scale!()`. The existing functions such as
-//!    `bibytes()`, `bytes()`, `seconds()` are all built using the same macro.
+//!    mantissa formatting), then you can build a custom function using the
+//!    provided macro `scale_fn!()`. The existing functions such as
+//!    `bibytes()`, `bytes()`, `seconds()` are all built using this same
+//!    macro.
 //!
 //!
 //! ## The high-level API
 //!
-//! The `seconds()` function parses a number into a `Value` and displays it
+//! The `seconds3()` function parses a number into a `Value` and displays it
 //! using 3 decimals and the appropriate scale for seconds (`UnitAndBelow`),
-//! so that non-sensical scales such as kilo-seconds may not appear.
+//! so that non-sensical scales such as kilo-seconds may not appear. The
+//! `seconds()` function does the same but formats the mantissa with the
+//! default `"{}"`, so no decimals are printed for integer mantissa.
 //!
 //! ```
-//! use si_scale::helpers::seconds;
+//! use si_scale::helpers::{seconds, seconds3};
 //!
-//! let actual = format!("result is {}", seconds(1234.5678));
-//! let expected = "result is 1234.568 s";
+//! let actual = format!("result is {:>15}", seconds(1234.5678));
+//! let expected = "result is     1234.5678 s";
 //! assert_eq!(actual, expected);
 //!
-//! let actual = format!("result is {:>10}", seconds(12.34e-7));
-//! let expected = "result is   1.234 µs";
+//! let actual = format!("result is {:>10}", seconds3(12.3e-7));
+//! let expected = "result is   1.230 µs";
 //! assert_eq!(actual, expected);
 //! ```
 //!
-//! The `bytes()` function parses a number into a `Value` _using base 1000_
-//! and displays it using 3 decimals and the appropriate scale for bytes
+//! The `bytes()` function parses a number into a `Value` *using base 1000*
+//! and displays it using 1 decimal and the appropriate scale for bytes
 //! (`UnitAndAbove`), so that non-sensical scales such as milli-bytes may not
 //! appear.
 //!
 //! ```
-//! use si_scale::helpers::bytes;
+//! use si_scale::helpers::{bytes, bytes1};
 //!
-//! let actual = format!("result is {}", bytes(12_345_678));
-//! let expected = "result is 12.345_678 MB";
+//! let actual = format!("result is {}", bytes1(12_345_678));
+//! let expected = "result is 12.3 MB";
 //! assert_eq!(actual, expected);
 //!
 //! let actual = format!("result is {:>10}", bytes(16));
@@ -90,6 +152,31 @@
 //! assert_eq!(actual, expected);
 //!
 //! let actual = format!("result is {}", bytes(0.12));
+//! let expected = "result is 0.12 B";
+//! assert_eq!(actual, expected);
+//! ```
+//!
+//! The `bibytes1()` function parses a number into a `Value` *using base 1024*
+//! and displays it using 1 decimal and the appropriate scale for bytes
+//! (`UnitAndAbove`), so that non-sensical scales such as milli-bytes may not
+//! appear.
+//!
+//! ```
+//! use si_scale::helpers::{bibytes, bibytes1};
+//!
+//! let actual = format!("result is {}", bibytes1(12_345_678));
+//! let expected = "result is 11.8 MiB";
+//! assert_eq!(actual, expected);
+
+//! let actual = format!("result is {}", bibytes(16 * 1024));
+//! let expected = "result is 16 kiB";
+//! assert_eq!(actual, expected);
+
+//! let actual = format!("result is {:>10}", bibytes1(16));
+//! let expected = "result is     16.0 B";
+//! assert_eq!(actual, expected);
+
+//! let actual = format!("result is {}", bibytes(0.12));
 //! let expected = "result is 0.12 B";
 //! assert_eq!(actual, expected);
 //! ```
