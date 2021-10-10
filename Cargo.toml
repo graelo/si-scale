@@ -23,7 +23,7 @@ assert_eq!(actual, expected);
 ```
 """
 
-keywords = ["units", "pretty", "human", "number", "si", "scale"]
+keywords = ["units", "pretty", "human", "number", "si-units"]
 readme = "README.md"
 categories = ["value-formatting", "science"]
 exclude = ["/.github", "/.travis.yml", "/appveyor.yml"]
