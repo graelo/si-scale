@@ -61,14 +61,14 @@
 ///
 #[macro_export]
 macro_rules! format_value {
-    ($name: ident, $fmt_str:literal) => {
+    ($name:ident, $fmt_str:literal) => {
         format_args! {
             concat!($fmt_str, " {}"),
             $name.mantissa,
             $name.prefix.unwrap()
         }
     };
-    ($name: ident, $fmt_str:literal, groupings: $separator:expr) => {
+    ($name:ident, $fmt_str:literal, groupings: $separator:expr) => {
         format_args! {
             "{} {}",
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),

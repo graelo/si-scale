@@ -55,6 +55,46 @@
 //!    `bibytes()`, `bytes()`, `seconds()` are all built using the same macro.
 //!
 //!
+//! ## The high-level API
+//!
+//! The `seconds()` function parses a number into a `Value` and displays it
+//! using 3 decimals and the appropriate scale for seconds (`UnitAndBelow`),
+//! so that non-sensical scales such as kilo-seconds may not appear.
+//!
+//! ```
+//! use si_scale::helpers::seconds;
+//!
+//! let actual = format!("result is {}", seconds(1234.5678));
+//! let expected = "result is 1234.568 s";
+//! assert_eq!(actual, expected);
+//!
+//! let actual = format!("result is {:>10}", seconds(12.34e-7));
+//! let expected = "result is   1.234 µs";
+//! assert_eq!(actual, expected);
+//! ```
+//!
+//! The `bytes()` function parses a number into a `Value` _using base 1000_
+//! and displays it using 3 decimals and the appropriate scale for bytes
+//! (`UnitAndAbove`), so that non-sensical scales such as milli-bytes may not
+//! appear.
+//!
+//! ```
+//! use si_scale::helpers::bytes;
+//!
+//! let actual = format!("result is {}", bytes(12_345_678));
+//! let expected = "result is 12.345_678 MB";
+//! assert_eq!(actual, expected);
+//!
+//! let actual = format!("result is {:>10}", bytes(16));
+//! let expected = "result is       16 B";
+//! assert_eq!(actual, expected);
+//!
+//! let actual = format!("result is {}", bytes(0.12));
+//! let expected = "result is 0.12 B";
+//! assert_eq!(actual, expected);
+//! ```
+//!
+//!
 //! ## The low-level API
 //!
 //! ### Creating a `Value` with `Value::new()`
@@ -214,6 +254,7 @@ pub type Result<T> = std::result::Result<T, SIUnitsError>;
 
 pub mod base;
 pub mod format;
+pub mod helpers;
 pub mod prefix;
 pub mod value;
 
