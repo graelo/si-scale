@@ -1,6 +1,6 @@
 [package]
 name = "si-scale"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 
 license = "MIT/Apache-2.0"
@@ -8,19 +8,9 @@ repository = "https://github.com/u0xy/si-scale"
 homepage = "https://github.com/u0xy/si-scale"
 documentation = "https://docs.rs/si-scale"
 description = """
-Formats value using the appropriate SI scale.
+Formats values using the appropriate SI scale (could be named `pretty-units`).
 
-```
-use si_scale::helpers::{seconds, seconds3};
-
-let actual = format!("{}", seconds(1.3e-5));
-let expected = "13 µs";
-assert_eq!(actual, expected);
-
-let actual = format!("{}", seconds3(1.3e-5));
-let expected = "13.000 µs";
-assert_eq!(actual, expected);
-```
+seconds(1.3e-5) -> 13 µs
 """
 
 keywords = ["units", "pretty", "human", "number", "si-units"]
