@@ -10,11 +10,17 @@ documentation = "https://docs.rs/si-scale"
 description = """
 Formats value using the appropriate SI scale.
 
-Depending on the attached unit:
-- 1337 -> 1.34 kB
-- 1337 -> 1_337 s
-- 0.1337 -> 133.7 ms
-- etc
+```
+use si_scale::helpers::{seconds, seconds3};
+
+let actual = format!("{}", seconds(1.3e-5));
+let expected = "13 µs";
+assert_eq!(actual, expected);
+
+let actual = format!("{}", seconds3(1.3e-5));
+let expected = "13.000 µs";
+assert_eq!(actual, expected);
+```
 """
 
 keywords = ["units", "pretty", "human", "number", "si", "scale"]
