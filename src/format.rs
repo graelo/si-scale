@@ -65,14 +65,14 @@ macro_rules! format_value {
         format_args! {
             concat!($fmt_str, " {}"),
             $name.mantissa,
-            $name.prefix.unwrap()
+            $name.prefix
         }
     };
     ($name:ident, $fmt_str:literal, groupings: $separator:expr) => {
         format_args! {
             "{} {}",
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
-            $name.prefix.unwrap()
+            $name.prefix
         }
     };
 }

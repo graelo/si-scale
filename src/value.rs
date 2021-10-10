@@ -12,13 +12,13 @@ use crate::prefix::Constraint;
 ///
 /// | min         | max              | exponent | magnitude | prefix                |
 /// | ---         | ---              | ---      | ---       | ----                  |
-/// | ..          | ..               | -3       | -9        | `Some(Prefix::Nano)`  |
-/// | 0.000\_001  | 0.001            | -2       | -6        | `Some(Prefix::Micro)` |
-/// | 0.001       | 1                | -1       | -3        | `Some(Prefix::Milli)` |
-/// | 1           | 1_000            | 0        | 0         | `Some(Prefix::Unit)`  |
-/// | 1000        | 1\_000\_000      | 1        | 3         | `Some(Prefix::Kilo)`  |
-/// | 1\_000\_000 | 1\_000\_000\_000 | 2        | 6         | `Some(Prefix::Mega)`  |
-/// | ..          | ..               | 3        | 9         | `Some(Prefix::Tera)`  |
+/// | ..          | ..               | -3       | -9        | `Prefix::Nano`  |
+/// | 0.000\_001  | 0.001            | -2       | -6        | `Prefix::Micro` |
+/// | 0.001       | 1                | -1       | -3        | `Prefix::Milli` |
+/// | 1           | 1_000            | 0        | 0         | `Prefix::Unit`  |
+/// | 1000        | 1\_000\_000      | 1        | 3         | `Prefix::Kilo`  |
+/// | 1\_000\_000 | 1\_000\_000\_000 | 2        | 6         | `Prefix::Mega`  |
+/// | ..          | ..               | 3        | 9         | `Prefix::Tera`  |
 ///
 /// The base is usually 1000, but can also be 1024 (bibytes).
 ///
@@ -33,7 +33,7 @@ use crate::prefix::Constraint;
 /// let actual = Value::from(0.123);
 /// let expected = Value {
 ///     mantissa: 123f64,
-///     prefix: Some(Prefix::Milli),
+///     prefix: Prefix::Milli,
 ///     base: Base::B1000,
 /// };
 /// assert_eq!(actual, expected);
@@ -42,7 +42,7 @@ use crate::prefix::Constraint;
 #[derive(Debug, PartialEq)]
 pub struct Value {
     pub mantissa: f64,
-    pub prefix: Option<Prefix>,
+    pub prefix: Prefix,
     pub base: Base,
 }
 
@@ -58,7 +58,7 @@ impl Value {
     /// let actual = Value::new(-4.6e-5);
     /// let expected = Value {
     ///     mantissa: -46f64,
-    ///     prefix: Some(Prefix::Micro),
+    ///     prefix: Prefix::Micro,
     ///     base: Base::B1000,
     /// };
     /// assert_eq!(actual, expected);
@@ -75,7 +75,7 @@ impl Value {
     /// let actual = Value::new(-4.3e-5);
     /// let expected = Value {
     ///     mantissa: -43.00000000000001f64,
-    ///     prefix: Some(Prefix::Micro),
+    ///     prefix: Prefix::Micro,
     ///     base: Base::B1000,
     /// };
     /// assert_eq!(actual, expected);
@@ -99,7 +99,7 @@ impl Value {
     /// let actual = Value::new_with(4 * 1024 * 1024, Base::B1024, Constraint::None);
     /// let expected = Value {
     ///     mantissa: 4f64,
-    ///     prefix: Some(Prefix::Mega),
+    ///     prefix: Prefix::Mega,
     ///     base: Base::B1024,
     /// };
     /// assert_eq!(actual, expected);
@@ -118,10 +118,7 @@ impl Value {
         // let prefix = prefix_constraint.closest_prefix_below(exponent);
         let prefix = Self::closest_prefix_for(exponent, prefix_constraint);
 
-        let mantissa = match prefix {
-            Some(prefix) => x / base.pow(prefix.exponent()),
-            None => x,
-        };
+        let mantissa = x / base.pow(prefix.exponent());
 
         Value {
             mantissa,
@@ -139,20 +136,15 @@ impl Value {
     ///
     /// let value = Value {
     ///     mantissa: 1.3f64,
-    ///     prefix: Some(Prefix::Unit),
+    ///     prefix: Prefix::Unit,
     ///     base: Base::B1000,
     /// };
     /// assert_eq!(value.to_f64(), 1.3);
     /// ```
     ///
     pub fn to_f64(&self) -> f64 {
-        match self.prefix {
-            Some(prefix) => {
-                let scale = self.base.pow(prefix.exponent());
-                self.mantissa * scale
-            }
-            None => self.mantissa,
-        }
+        let scale = self.base.pow(self.prefix.exponent());
+        self.mantissa * scale
     }
 
     /// Returns a number that represents the sign of self.
@@ -182,21 +174,23 @@ impl Value {
     ///
     /// # Panics
     ///
-    /// This function panics if the `Custom` allowed prefixes is an empty
-    /// vector.
+    /// - If the `Custom` allowed prefixes is an empty vector.
     ///
-    fn closest_prefix_for<C: AsRef<Constraint>>(exponent: i32, constraint: C) -> Option<Prefix> {
+    fn closest_prefix_for<C: AsRef<Constraint>>(exponent: i32, constraint: C) -> Prefix {
         use std::convert::TryFrom;
 
         match constraint.as_ref() {
             Constraint::None => {
-                Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Yotta as i32)).ok()
+                Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Yotta as i32))
+                    .unwrap_or(Prefix::Unit)
             }
             Constraint::UnitAndAbove => {
-                Prefix::try_from(exponent.clamp(Prefix::Unit as i32, Prefix::Yotta as i32)).ok()
+                Prefix::try_from(exponent.clamp(Prefix::Unit as i32, Prefix::Yotta as i32))
+                    .unwrap_or(Prefix::Unit)
             }
             Constraint::UnitAndBelow => {
-                Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Unit as i32)).ok()
+                Prefix::try_from(exponent.clamp(Prefix::Yocto as i32, Prefix::Unit as i32))
+                    .unwrap_or(Prefix::Unit)
             }
             Constraint::Custom(allowed_prefixes) => {
                 if allowed_prefixes.is_empty() {
@@ -204,13 +198,14 @@ impl Value {
                 }
                 let smallest_prefix = *allowed_prefixes.first().unwrap();
                 if exponent < smallest_prefix as i32 {
-                    return Some(smallest_prefix);
+                    return smallest_prefix;
                 }
                 allowed_prefixes
                     .iter()
                     .take_while(|&&prefix| prefix as i32 <= exponent)
                     .cloned()
                     .last()
+                    .unwrap_or(Prefix::Unit)
             }
         }
     }
@@ -270,8 +265,8 @@ impl fmt::Display for Value {
     ///
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.prefix {
-            Some(prefix) => write!(f, "{} {}", self.mantissa, prefix),
-            None => write!(f, "{}", self.mantissa),
+            Prefix::Unit => write!(f, "{}", self.mantissa),
+            _ => write!(f, "{} {}", self.mantissa, self.prefix),
         }
     }
 }
@@ -298,7 +293,7 @@ mod tests {
         let actual = Value::new(1e-28);
         let expected = Value {
             mantissa: 1e-4f64,
-            prefix: Some(Prefix::Yocto),
+            prefix: Prefix::Yocto,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -306,7 +301,7 @@ mod tests {
         let actual = Value::new(-1.5e28);
         let expected = Value {
             mantissa: -1.5e4f64,
-            prefix: Some(Prefix::Yotta),
+            prefix: Prefix::Yotta,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -317,7 +312,7 @@ mod tests {
         let actual = Value::new(1);
         let expected = Value {
             mantissa: 1f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -325,7 +320,7 @@ mod tests {
         let actual = Value::new(-1.3);
         let expected = Value {
             mantissa: -1.3f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -336,7 +331,7 @@ mod tests {
         let actual = Value::new(0.1);
         let expected = Value {
             mantissa: 100f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -344,7 +339,7 @@ mod tests {
         let actual = Value::new(-0.1);
         let expected = Value {
             mantissa: -100f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -352,7 +347,7 @@ mod tests {
         let actual = Value::new(0.001);
         let expected = Value {
             mantissa: 1f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -360,7 +355,7 @@ mod tests {
         let actual = Value::new(-0.001);
         let expected = Value {
             mantissa: -1f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -368,7 +363,7 @@ mod tests {
         let actual = Value::new(0.000_1);
         let expected = Value {
             mantissa: 100.00000000000001f64,
-            prefix: Some(Prefix::Micro),
+            prefix: Prefix::Micro,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -376,7 +371,7 @@ mod tests {
         let actual = Value::new(-0.000_1);
         let expected = Value {
             mantissa: -100.00000000000001f64,
-            prefix: Some(Prefix::Micro),
+            prefix: Prefix::Micro,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -384,7 +379,7 @@ mod tests {
         let actual = Value::new(-1e-4);
         let expected = Value {
             mantissa: -100.00000000000001f64,
-            prefix: Some(Prefix::Micro),
+            prefix: Prefix::Micro,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -392,7 +387,7 @@ mod tests {
         let actual = Value::new(-1e-8);
         let expected = Value {
             mantissa: -10f64,
-            prefix: Some(Prefix::Nano),
+            prefix: Prefix::Nano,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -400,7 +395,7 @@ mod tests {
         let actual = Value::new(-1e-23);
         let expected = Value {
             mantissa: -10f64,
-            prefix: Some(Prefix::Yocto),
+            prefix: Prefix::Yocto,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -408,7 +403,7 @@ mod tests {
         let actual = Value::new(0.12345);
         let expected = Value {
             mantissa: 123.45f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -416,7 +411,7 @@ mod tests {
         let actual = Value::new(-0.12345);
         let expected = Value {
             mantissa: -123.45f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -424,7 +419,7 @@ mod tests {
         let actual = Value::new(0.01234);
         let expected = Value {
             mantissa: 12.34f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -432,7 +427,7 @@ mod tests {
         let actual = Value::new(-0.01234);
         let expected = Value {
             mantissa: -12.34f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -440,7 +435,7 @@ mod tests {
         let actual = Value::new(0.001234);
         let expected = Value {
             mantissa: 1.234f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -448,7 +443,7 @@ mod tests {
         let actual = Value::new(-0.001234);
         let expected = Value {
             mantissa: -1.234f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -456,7 +451,7 @@ mod tests {
         let actual = Value::new(0.000_123_400);
         let expected = Value {
             mantissa: 123.39999999999999f64,
-            prefix: Some(Prefix::Micro),
+            prefix: Prefix::Micro,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -464,7 +459,7 @@ mod tests {
         let actual = Value::new(-0.000_123_400);
         let expected = Value {
             mantissa: -123.39999999999999f64,
-            prefix: Some(Prefix::Micro),
+            prefix: Prefix::Micro,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -475,7 +470,7 @@ mod tests {
         let actual = Value::new(1234);
         let expected = Value {
             mantissa: 1.234f64,
-            prefix: Some(Prefix::Kilo),
+            prefix: Prefix::Kilo,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -483,7 +478,7 @@ mod tests {
         let actual = Value::new(123_456);
         let expected = Value {
             mantissa: 123.456f64,
-            prefix: Some(Prefix::Kilo),
+            prefix: Prefix::Kilo,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -491,7 +486,7 @@ mod tests {
         let actual = Value::new(123_456_000);
         let expected = Value {
             mantissa: 123.456f64,
-            prefix: Some(Prefix::Mega),
+            prefix: Prefix::Mega,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -499,7 +494,7 @@ mod tests {
         let actual = Value::new(-123_456_000);
         let expected = Value {
             mantissa: -123.456f64,
-            prefix: Some(Prefix::Mega),
+            prefix: Prefix::Mega,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -510,7 +505,7 @@ mod tests {
         let actual = Value::from(0.1f32);
         let expected = Value {
             mantissa: 100.00000149011612f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -518,7 +513,7 @@ mod tests {
         let actual = Value::from(-0.1);
         let expected = Value {
             mantissa: -100f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -526,7 +521,7 @@ mod tests {
         let actual = Value::from(1.5);
         let expected = Value {
             mantissa: 1.5f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -534,7 +529,7 @@ mod tests {
         let actual = Value::from(-1.5);
         let expected = Value {
             mantissa: -1.5f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -542,7 +537,7 @@ mod tests {
         let actual = Value::from(15u32);
         let expected = Value {
             mantissa: 15f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -550,7 +545,7 @@ mod tests {
         let actual = Value::from(-1.5e28);
         let expected = Value {
             mantissa: -1.5e4f64,
-            prefix: Some(Prefix::Yotta),
+            prefix: Prefix::Yotta,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -562,7 +557,7 @@ mod tests {
         let actual = Value::from(&number);
         let expected = Value {
             mantissa: 100f64,
-            prefix: Some(Prefix::Milli),
+            prefix: Prefix::Milli,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -571,7 +566,7 @@ mod tests {
         let actual = Value::from(&number);
         let expected = Value {
             mantissa: 10f64,
-            prefix: Some(Prefix::Mega),
+            prefix: Prefix::Mega,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -605,7 +600,7 @@ mod tests {
         let actual = Value::new_with(1, Base::B1024, Constraint::None);
         let expected = Value {
             mantissa: 1f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1024,
         };
         assert_eq!(actual, expected);
@@ -613,7 +608,7 @@ mod tests {
         let actual = Value::new_with(16, Base::B1024, Constraint::None);
         let expected = Value {
             mantissa: 16f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1024,
         };
         assert_eq!(actual, expected);
@@ -621,7 +616,7 @@ mod tests {
         let actual = Value::new_with(1024, Base::B1024, Constraint::None);
         let expected = Value {
             mantissa: 1f64,
-            prefix: Some(Prefix::Kilo),
+            prefix: Prefix::Kilo,
             base: Base::B1024,
         };
         assert_eq!(actual, expected);
@@ -629,7 +624,7 @@ mod tests {
         let actual = Value::new_with(1.6 * 1024f32, Base::B1024, Constraint::None);
         let expected = Value {
             mantissa: 1.600000023841858f64,
-            prefix: Some(Prefix::Kilo),
+            prefix: Prefix::Kilo,
             base: Base::B1024,
         };
         assert_eq!(actual, expected);
@@ -637,7 +632,7 @@ mod tests {
         let actual = Value::new_with(16 * 1024 * 1024, Base::B1024, Constraint::None);
         let expected = Value {
             mantissa: 16f64,
-            prefix: Some(Prefix::Mega),
+            prefix: Prefix::Mega,
             base: Base::B1024,
         };
         assert_eq!(actual, expected);
@@ -650,7 +645,7 @@ mod tests {
         let actual = Value::new_with(1325, Base::B1000, Constraint::UnitAndBelow);
         let expected = Value {
             mantissa: 1325f64,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1000,
         };
         assert_eq!(actual, expected);
@@ -659,7 +654,7 @@ mod tests {
         let actual = Value::new_with(0.015, Base::B1024, Constraint::UnitAndAbove);
         let expected = Value {
             mantissa: 0.015,
-            prefix: Some(Prefix::Unit),
+            prefix: Prefix::Unit,
             base: Base::B1024,
         };
         assert_eq!(actual, expected);
@@ -672,27 +667,27 @@ mod tests {
     fn closest_prefix_without_constraint() {
         let exponent = -24;
         let actual = Value::closest_prefix_for(exponent, Constraint::None);
-        let expected = Some(Prefix::Yocto);
+        let expected = Prefix::Yocto;
         assert_eq!(actual, expected);
 
         let exponent = 0;
         let actual = Value::closest_prefix_for(exponent, Constraint::None);
-        let expected = Some(Prefix::Unit);
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
 
         let exponent = 24;
         let actual = Value::closest_prefix_for(exponent, Constraint::None);
-        let expected = Some(Prefix::Yotta);
+        let expected = Prefix::Yotta;
         assert_eq!(actual, expected);
 
         let exponent = 30;
         let actual = Value::closest_prefix_for(exponent, Constraint::None);
-        let expected = Some(Prefix::Yotta);
+        let expected = Prefix::Yotta;
         assert_eq!(actual, expected);
 
         let exponent = 1; // should never happen
         let actual = Value::closest_prefix_for(exponent, Constraint::None);
-        let expected = None;
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
     }
 
@@ -705,27 +700,27 @@ mod tests {
 
         let exponent = -24;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Unit);
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
 
         let exponent = 0;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Unit);
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
 
         let exponent = 24;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Yotta);
+        let expected = Prefix::Yotta;
         assert_eq!(actual, expected);
 
         let exponent = 30;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Yotta);
+        let expected = Prefix::Yotta;
         assert_eq!(actual, expected);
 
         let exponent = 1; // should never happen
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = None;
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
     }
 
@@ -738,27 +733,27 @@ mod tests {
 
         let exponent = -24;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Yocto);
+        let expected = Prefix::Yocto;
         assert_eq!(actual, expected);
 
         let exponent = 0;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Unit);
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
 
         let exponent = 24;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Unit);
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
 
         let exponent = -30;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Yocto);
+        let expected = Prefix::Yocto;
         assert_eq!(actual, expected);
 
         let exponent = -1; // should never happen
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = None;
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
     }
 
@@ -770,37 +765,37 @@ mod tests {
 
         let exponent = -24;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Milli);
+        let expected = Prefix::Milli;
         assert_eq!(actual, expected);
 
         let exponent = -3;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Milli);
+        let expected = Prefix::Milli;
         assert_eq!(actual, expected);
 
         let exponent = 0;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Unit);
+        let expected = Prefix::Unit;
         assert_eq!(actual, expected);
 
         let exponent = 3;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Kilo);
+        let expected = Prefix::Kilo;
         assert_eq!(actual, expected);
 
         let exponent = 24;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Kilo);
+        let expected = Prefix::Kilo;
         assert_eq!(actual, expected);
 
         let exponent = -30;
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Milli);
+        let expected = Prefix::Milli;
         assert_eq!(actual, expected);
 
         let exponent = -1; // should never happen
         let actual = Value::closest_prefix_for(exponent, &constraint);
-        let expected = Some(Prefix::Milli);
+        let expected = Prefix::Milli;
         assert_eq!(actual, expected);
     }
 
@@ -810,8 +805,6 @@ mod tests {
         let constraint = Constraint::Custom(vec![]);
 
         let exponent = 3;
-        let actual = Value::closest_prefix_for(exponent, constraint);
-        let expected = None;
-        assert_eq!(actual, expected);
+        Value::closest_prefix_for(exponent, constraint);
     }
 }
