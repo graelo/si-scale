@@ -118,7 +118,38 @@ macro_rules! scale_fn {
             )
         }
     };
+
+    (
+        $name:ident,
+        base: $base_arg:ident,
+        constraint: $constraint_arg:ident,
+        mantissa_fmt: $mantissa_fmt:expr,
+        groupings: $sep_arg:literal
+    ) => {
+        pub fn $name<F>(x: F) -> String
+        where
+            F: Into<f64>,
+        {
+            let value = Value::new_with(
+                x,
+                $crate::base::Base::$base_arg,
+                $crate::prefix::Constraint::$constraint_arg,
+            );
+            format!(
+                "{}",
+                $crate::format_value!(value, $mantissa_fmt, groupings: $sep_arg, no_unit)
+            )
+        }
+    };
 }
+
+// number without units
+//
+scale_fn!(number_,
+          base: B1000,
+          constraint: UnitOnly,
+          mantissa_fmt: "{}",
+          groupings: '_');
 
 // seconds
 //
@@ -176,6 +207,25 @@ scale_fn!(bibytes1,
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_number() {
+        let actual = format!("result is {}", number_(1234.5678));
+        let expected = "result is 1_234.567_8";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {:>10}", number_(12.4e-8));
+        let expected = "result is 0.000_000_124";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", number_(1.1));
+        let expected = "result is 1.1";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", number_(1.0));
+        let expected = "result is 1";
+        assert_eq!(actual, expected);
+    }
 
     #[test]
     fn test_seconds() {

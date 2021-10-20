@@ -42,8 +42,10 @@
 //!
 //! | helper fn    | mantissa  | prefix constraint | base  | groupings | example                |
 //! | ---          | --        | ---               | ---   | ---       | ---                    |
+//! | `number_()`  | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1.234567`, `16`       |
+//! | ---          | --        | ---               | ---   | ---       | ---                    |
 //! | `seconds()`  | `"{}"`    | `UnitAndBelow`    | B1000 | none      | `1.234567 µs`, `16 ms` |
-//! | `seconds3()` | `"{:.3}"` | `UnitAndBelow`    | B1000 | none      | `1.235 µs`, `9876 s`   |
+//! | `seconds3()` | `"{:.3}"` | `UnitAndBelow`    | B1000 | none      | `1.235 µs`, `16.000 ms`|
 //! | ---          | --        | ---               | ---   | ---       | ---                    |
 //! | `bytes()`    | `"{}"`    | `UnitAndAbove`    | B1000 | `_`       | `1.234_567 kB`         |
 //! | `bytes_()`   | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1_234_567 B`          |
@@ -51,6 +53,17 @@
 //! | ---          | --        | ---               | ---   | ---       | ---                    |
 //! | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | `_`       | `1.234_567 MiB`        |
 //! | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1.2 GiB`              |
+//!
+//! - The prefix constraint `UnitOnly` means the provided value won't be
+//! scaled: if you provide a value larger than 1000, say 1234, it will be
+//! printed as 1234.
+//! - Base B1000 means 1k = 1000, the base B1024 means 1k = 1024
+//! - Groupings refer to "thousands groupings"; the provided char will be
+//! used (for instance 1234 is displayed as 1_234), if none, the value is
+//! displayed 1234.
+//! - The mantissa format string acts only upon the mantissa: `"{}"` will
+//! display the value with all its digits or no digits if it is round, and
+//! `"{:.3}"` for instance will always display one decimal.
 //!
 //!
 //! ## Custom helper functions
@@ -93,6 +106,9 @@
 //! }
 //!
 //! ```
+//!
+//! You can omit the `groupings` argument of the macro to not sepearate
+//! thousands.
 //!
 //!
 //! ## SI Scales
@@ -167,7 +183,7 @@
 //!
 //! The `seconds3()` function parses a number into a `Value` and displays it
 //! using 3 decimals and the appropriate scale for seconds (`UnitAndBelow`),
-//! so that non-sensical scales such as kilo-seconds may not appear. The
+//! so that non-sensical scales such as kilo-seconds can't be output. The
 //! `seconds()` function does the same but formats the mantissa with the
 //! default `"{}"`, so no decimals are printed for integer mantissa.
 //!

@@ -72,10 +72,27 @@ macro_rules! format_value {
             },
         }
     };
+
     ($name:ident, $fmt_str:literal, groupings: $separator:expr) => {
         format_args! {
             "{} {}{}",
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
+            $name.prefix,
+            match $name.base {
+                $crate::base::Base::B1000 => "",
+                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+            },
+        }
+    };
+
+    ($name:ident, $fmt_str:literal, groupings: $separator:expr, no_unit) => {
+        format_args! {
+            "{}{}{}{}",
+            $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
+            match $name.prefix {
+                $crate::prefix::Prefix::Unit => "",
+                _=> " "
+            },
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
