@@ -54,16 +54,20 @@
 //! | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | `_`       | `1.234_567 MiB`        |
 //! | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1.2 GiB`              |
 //!
-//! - The prefix constraint `UnitOnly` means the provided value won't be
-//! scaled: if you provide a value larger than 1000, say 1234, it will be
-//! printed as 1234.
+//! - The prefix constraint reduces the possible scales for a value (it is
+//! "unit" like in 1, not like in units of measurements). For instance,
+//! `UnitOnly` means the provided value won't be scaled: if you provide a
+//! value larger than 1000, say 1234, it will be printed as 1234. The
+//! `UnitAndBelow` constraint means the provided value won't use upper scales
+//! such as kilo, Mega, Tera, etc, but a small value will be scaled: 16 µs
+//! could be displayed, but not 16 Gs.
 //! - Base B1000 means 1k = 1000, the base B1024 means 1k = 1024
 //! - Groupings refer to "thousands groupings"; the provided char will be
-//! used (for instance 1234 is displayed as 1_234), if none, the value is
+//! used (for instance 1234 is displayed as 1\_234), if none, the value is
 //! displayed 1234.
-//! - The mantissa format string acts only upon the mantissa: `"{}"` will
+//! - The mantissa format string only acts on the mantissa: `"{}"` will
 //! display the value with all its digits or no digits if it is round, and
-//! `"{:.3}"` for instance will always display one decimal.
+//! `"{:.1}"` for instance will always display one decimal.
 //!
 //!
 //! ## Custom helper functions
@@ -107,7 +111,7 @@
 //!
 //! ```
 //!
-//! You can omit the `groupings` argument of the macro to not sepearate
+//! You can omit the `groupings` argument of the macro to not separate
 //! thousands.
 //!
 //!
@@ -231,15 +235,15 @@
 //! let actual = format!("result is {}", bibytes1(12_345_678));
 //! let expected = "result is 11.8 MiB";
 //! assert_eq!(actual, expected);
-
+//!
 //! let actual = format!("result is {}", bibytes(16 * 1024));
 //! let expected = "result is 16 kiB";
 //! assert_eq!(actual, expected);
-
+//!
 //! let actual = format!("result is {:>10}", bibytes1(16));
 //! let expected = "result is     16.0 B";
 //! assert_eq!(actual, expected);
-
+//!
 //! let actual = format!("result is {}", bibytes(0.12));
 //! let expected = "result is 0.12 B";
 //! assert_eq!(actual, expected);

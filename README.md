@@ -58,16 +58,20 @@ Currently the helper functions are:
 | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | `_`       | `1.234_567 MiB`        |
 | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1.2 GiB`              |
 
-- The prefix constraint `UnitOnly` means the provided value won't be
-scaled: if you provide a value larger than 1000, say 1234, it will be
-printed as 1234.
+- The prefix constraint reduces the possible scales for a value (it is
+"unit" like in 1, not like in units of measurements). For instance,
+`UnitOnly` means the provided value won't be scaled: if you provide a
+value larger than 1000, say 1234, it will be printed as 1234. The
+`UnitAndBelow` constraint means the provided value won't use upper scales
+such as kilo, Mega, Tera, etc, but a small value will be scaled: 16 µs
+could be displayed, but not 16 Gs.
 - Base B1000 means 1k = 1000, the base B1024 means 1k = 1024
 - Groupings refer to "thousands groupings"; the provided char will be
-used (for instance 1234 is displayed as 1_234), if none, the value is
+used (for instance 1234 is displayed as 1\_234), if none, the value is
 displayed 1234.
-- The mantissa format string acts only upon the mantissa: `"{}"` will
+- The mantissa format string only acts on the mantissa: `"{}"` will
 display the value with all its digits or no digits if it is round, and
-`"{:.3}"` for instance will always display one decimal.
+`"{:.1}"` for instance will always display one decimal.
 
 
 ## Custom helper functions
@@ -111,7 +115,7 @@ fn main() {
 
 ```
 
-You can omit the `groupings` argument of the macro to not sepearate
+You can omit the `groupings` argument of the macro to not separate
 thousands.
 
 
@@ -236,4 +240,167 @@ let actual = format!("result is {}", bibytes1(12_345_678));
 let expected = "result is 11.8 MiB";
 assert_eq!(actual, expected);
 
+let actual = format!("result is {}", bibytes(16 * 1024));
+let expected = "result is 16 kiB";
+assert_eq!(actual, expected);
+
+let actual = format!("result is {:>10}", bibytes1(16));
+let expected = "result is     16.0 B";
+assert_eq!(actual, expected);
+
+let actual = format!("result is {}", bibytes(0.12));
+let expected = "result is 0.12 B";
+assert_eq!(actual, expected);
+```
+
+
+### The low-level API
+
+#### Creating a `Value` with `Value::new()`
+
+The low-level function [`Value::new()`](`crate::value::Value::new\(\)`)
+converts any number convertible to f64 into a `Value` using base 1000. The
+`Value` struct implements `From` for common numbers and delegates to
+`Value::new()`, so they are equivalent in practice. Here are a few
+examples.
+
+```rust
+use std::convert::From;
+use si_scale::prelude::*;
+
+let actual = Value::from(0.123);
+let expected = Value {
+    mantissa: 123f64,
+    prefix: Prefix::Milli,
+    base: Base::B1000,
+};
+assert_eq!(actual, expected);
+assert_eq!(Value::new(0.123), expected);
+
+let actual: Value = 0.123.into();
+assert_eq!(actual, expected);
+
+let actual: Value = 1300i32.into();
+let expected = Value {
+    mantissa: 1.3f64,
+    prefix: Prefix::Kilo,
+    base: Base::B1000,
+};
+assert_eq!(actual, expected);
+
+let actual: Vec<Value> = vec![0.123f64, -1.5e28]
+    .iter().map(|n| n.into()).collect();
+let expected = vec![
+    Value {
+        mantissa: 123f64,
+        prefix: Prefix::Milli,
+        base: Base::B1000,
+    },
+    Value {
+        mantissa: -1.5e4f64,
+        prefix: Prefix::Yotta,
+        base: Base::B1000,
+    },
+];
+assert_eq!(actual, expected);
+```
+
+As you can see in the last example, values which scale are outside of the
+SI prefixes are represented using the closest SI prefix.
+
+
+#### Creating a `Value` with `Value::new_with()`
+
+The low-level [`Value::new_with()`](`crate::value::Value::new_with\(\)`)
+operates similarly to [`Value::new()`](`crate::value::Value::new\(\)`) but
+also expects a base and a constraint on the scales you want to use. In
+comparison with the simple `Value::new()`, this allows base 1024 scaling
+(for kiB, MiB, etc) and preventing upper scales for seconds or lower
+scales for integral units such as bytes (e.g. avoid writing 1300 sec as
+1.3 ks or 0.415 B as 415 mB).
+
+```rust
+use si_scale::prelude::*;
+
+// Assume this is seconds, no kilo-seconds make sense.
+let actual = Value::new_with(1234, Base::B1000, Constraint::UnitAndBelow);
+let expected = Value {
+    mantissa: 1234f64,
+    prefix: Prefix::Unit,
+    base: Base::B1000,
+};
+assert_eq!(actual, expected);
+```
+
+Don't worry yet about the verbosity, the following parser helps with this.
+
+
+#### Formatting values
+
+In this example, the number `x` is converted into a value and displayed
+using the most appropriate SI prefix. The user chose to constrain the
+prefix to be anything lower than `Unit` (1) because kilo-seconds make
+no sense.
+
+```rust
+use si_scale::format_value;
+use si_scale::{value::Value, base::Base, prefix::Constraint};
+
+let x = 1234.5678;
+let v = Value::new_with(x, Base::B1000, Constraint::UnitAndBelow);
+let unit = "s";
+
+let actual = format!(
+    "result is {}{u}",
+    format_value!(v, "{:.5}", groupings: '_'),
+    u = unit
+);
+let expected = "result is 1_234.567_80 s";
+assert_eq!(actual, expected);
+```
+
+
+## Run code-coverage
+
+Install the llvm-tools-preview component and grcov
+
+```sh
+rustup component add llvm-tools-preview
+cargo install grcov
+```
+
+Install nightly
+
+```sh
+rustup toolchain install nightly
+```
+
+The following make invocation will switch to nigthly run the tests using
+Cargo, and output coverage HTML report in `./coverage/`
+
+```sh
+make coverage
+```
+
+The coverage report is located in `./coverage/index.html`
+
+
+
+## License
+
+Licensed under either of
+
+ * [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+ * [MIT license](http://opensource.org/licenses/MIT)
+
+at your option.
+
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall
+be dual licensed as above, without any additional terms or conditions.
+
 <!-- cargo-sync-readme end -->
+
