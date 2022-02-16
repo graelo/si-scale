@@ -35,6 +35,9 @@ impl Base {
         F: Into<f64>,
     {
         let x: f64 = x.into();
+        if x == 0.0 {
+            return 0;
+        }
         match self {
             Self::B1000 => (x.abs().log10() / 3f64).floor() as i32 * 3,
             Self::B1024 => (x.abs().log2() / 10f64).floor() as i32 * 3,
@@ -59,5 +62,19 @@ impl Base {
             Self::B1000 => 1000f64.powf(exponent as f64 / 3f64),
             Self::B1024 => 1024f64.powf(exponent as f64 / 3f64),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exponent_of_zero_is_zero() {
+        assert_eq!(0, Base::B1000.integral_exponent_for(0.0));
+        assert_eq!(0, Base::B1000.integral_exponent_for(-0.0));
+        
+        assert_eq!(0, Base::B1024.integral_exponent_for(0.0));
+        assert_eq!(0, Base::B1024.integral_exponent_for(-0.0));
     }
 }

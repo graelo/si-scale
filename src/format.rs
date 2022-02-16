@@ -242,6 +242,21 @@ mod tests {
         let expected = ".123_456_7--";
         assert_eq!(actual, expected);
     }
+
+    #[test]
+    fn format_zero_value() {
+        let x = 0.0f32;
+        let v: Value = x.into();
+        let unit = "F"; // just something displayable.
+
+        let actual = format!("result is {}{u}", format_value!(v, "{:>8.2}"), u = unit);
+        let expected = "result is     0.00 F";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}{u}", format_value!(v, "{:<8.3}"), u = unit);
+        let expected = "result is 0.000    F";
+        assert_eq!(actual, expected);
+    }
 }
 
 // macro_rules! format_scale {
