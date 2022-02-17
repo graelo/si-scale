@@ -73,7 +73,7 @@ mod tests {
     fn exponent_of_zero_is_zero() {
         assert_eq!(0, Base::B1000.integral_exponent_for(0.0));
         assert_eq!(0, Base::B1000.integral_exponent_for(-0.0));
-        
+
         assert_eq!(0, Base::B1024.integral_exponent_for(0.0));
         assert_eq!(0, Base::B1024.integral_exponent_for(-0.0));
     }
