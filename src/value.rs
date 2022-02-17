@@ -115,6 +115,11 @@ impl Value {
     /// assert_eq!(actual, expected);
     /// ```
     ///
+    #[deprecated(
+        since = "0.2.0",
+        note = "please use the `Value::constraint` and `Value::base` methods instead"
+    )]
+    #[allow(deprecated)]
     pub fn new_with<F, C>(x: F, base: Base, prefix_constraint: C) -> Self
     where
         F: Into<f64>,
@@ -125,7 +130,6 @@ impl Value {
         // Closest integral exponent (multiple of 3)
         let exponent: i32 = base.integral_exponent_for(x);
         // Clamp the exponent using the constraint on prefix
-        // let prefix = prefix_constraint.closest_prefix_below(exponent);
         let prefix = Self::closest_prefix_for(exponent, prefix_constraint);
 
         let mantissa = x / base.pow(prefix.exponent());
@@ -136,6 +140,18 @@ impl Value {
             prefix,
         }
     }
+
+    // see https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
+    // pub fn constraint<'a, C>(&'a mut self, prefix_constraint: C) -> &'a mut Self
+    //     where C: AsRef<Constraint>
+    //     {
+    //         match prefix_constraint.as_ref() {
+    //             Constraint::None => return self,
+    //             Constraint::UnitOnly => {
+    //                 if
+    //             }
+    //         }
+    //     }
 
     /// Converts `self` to a `f64`.
     ///
