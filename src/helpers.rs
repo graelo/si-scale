@@ -66,8 +66,6 @@
 //! assert_eq!(actual, expected);
 //! ```
 
-use crate::value::Value;
-
 #[macro_export]
 macro_rules! scale_fn {
     (
@@ -106,7 +104,7 @@ macro_rules! scale_fn {
         where
             F: Into<f64>,
         {
-            let value = Value::new_with(
+            let value = $crate::value::Value::new_with(
                 x,
                 $crate::base::Base::$base_arg,
                 $crate::prefix::Constraint::$constraint_arg,
@@ -130,7 +128,7 @@ macro_rules! scale_fn {
         where
             F: Into<f64>,
         {
-            let value = Value::new_with(
+            let value = $crate::value::Value::new_with(
                 x,
                 $crate::base::Base::$base_arg,
                 $crate::prefix::Constraint::$constraint_arg,
