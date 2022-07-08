@@ -1,4 +1,4 @@
-.PHONY: nightly coverage
+.PHONY: all clean test nightly coverage
 
 nightly:
 	rustup default nightly
