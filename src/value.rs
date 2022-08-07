@@ -147,29 +147,6 @@ impl Value {
         }
     }
 
-    // see https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
-    // pub fn constraint<'a, C>(&'a mut self, prefix_constraint: C) -> &'a mut Self
-    //     where C: AsRef<Constraint>
-    //     {
-    //         match prefix_constraint.as_ref() {
-    //             Constraint::None => return self,
-    //             Constraint::UnitOnly => {
-    //                 if
-    //             }
-    //         }
-    //     }
-
-    // pub fn constraint<C>(&self, prefix_constraint: C) -> Self
-    // where
-    //     C: AsRef<Constraint>,
-    // {
-    //     Value {
-    //         mantissa: self.mantissa,
-    //         prefix: prefix_constraint.as_ref(),
-    //         base: self.base,
-    //     }
-    // }
-
     /// Converts `self` to a `f64`.
     ///
     /// # Example
