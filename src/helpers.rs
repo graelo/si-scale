@@ -66,9 +66,9 @@
 //! assert_eq!(actual, expected);
 //! ```
 
-// Three nearly identical variants: with the unit argument only, with unit and
-// groupings arguments, with groupings argument only. If you happen to know how
-// to factor this, please make a suggestion!
+/// Three nearly identical variants: with the unit argument only, with unit and
+/// groupings arguments, with groupings argument only. If you happen to know how
+/// to factor this, please make a suggestion!
 #[macro_export]
 macro_rules! scale_fn {
     (
@@ -76,8 +76,10 @@ macro_rules! scale_fn {
         base: $base_arg:ident,
         constraint: $constraint_arg:ident,
         mantissa_fmt: $mantissa_fmt:expr,
-        unit: $unit_arg:literal
+        unit: $unit_arg:literal,
+        doc: $doc_arg:literal
     ) => {
+        /// $doc_arg
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -101,8 +103,10 @@ macro_rules! scale_fn {
         constraint: $constraint_arg:ident,
         mantissa_fmt: $mantissa_fmt:expr,
         groupings: $sep_arg:literal,
-        unit: $unit_arg:literal
+        unit: $unit_arg:literal,
+        doc: $doc_arg:literal
     ) => {
+        /// doc_arg
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -125,8 +129,10 @@ macro_rules! scale_fn {
         base: $base_arg:ident,
         constraint: $constraint_arg:ident,
         mantissa_fmt: $mantissa_fmt:expr,
-        groupings: $sep_arg:literal
+        groupings: $sep_arg:literal,
+        doc: $doc_arg:literal
     ) => {
+        /// $doc_arg
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -144,62 +150,76 @@ macro_rules! scale_fn {
     };
 }
 
-// number without units
-//
 scale_fn!(number_,
           base: B1000,
           constraint: UnitOnly,
           mantissa_fmt: "{}",
-          groupings: '_');
+          groupings: '_',
+          doc: "Print a number without units.");
 
-// seconds
-//
 scale_fn!(seconds,
           base: B1000,
           constraint: UnitAndBelow,
           mantissa_fmt: "{}",
-          unit: "s");
+          unit: "s",
+          doc: "Print a value in seconds.");
 
 scale_fn!(seconds3,
           base: B1000,
           constraint: UnitAndBelow,
           mantissa_fmt: "{:.3}",
-          unit: "s");
+          unit: "s",
+          doc: "Print a value in seconds with 3 decimals.");
 
-// bytes
-//
 scale_fn!(bytes,
           base: B1000,
           constraint: UnitAndAbove,
           mantissa_fmt: "{}",
-          unit: "B");
+          unit: "B",
+          doc: "Print a value in bytes.");
 
 scale_fn!(bytes_,
           base: B1000,
           constraint: UnitOnly,
           mantissa_fmt: "{}",
           groupings: '_',
-          unit: "B");
+          unit: "B",
+          doc: "Print a value in bytes with thousands separator.");
 
 scale_fn!(bytes1,
           base: B1000,
           constraint: UnitAndAbove,
           mantissa_fmt: "{:.1}",
-          unit: "B");
+          unit: "B",
+          doc: "Print a value in bytes with 1 decimal.");
 
-// bibytes
-//
+scale_fn!(bytes2,
+          base: B1000,
+          constraint: UnitAndAbove,
+          mantissa_fmt: "{:.2}",
+          unit: "B",
+          doc: "Print a value in bytes with 2 decimals.");
+
 scale_fn!(bibytes,
           base: B1024,
           constraint: UnitAndAbove,
           mantissa_fmt: "{}",
-          unit: "B");
+          unit: "B",
+          doc: "Print a value in bibytes.");
 
 scale_fn!(bibytes1,
           base: B1024,
           constraint: UnitAndAbove,
           mantissa_fmt: "{:.1}",
-          unit: "B");
+          unit: "B",
+          doc: "Print a value in bibytes with 1 decimal.");
+
+scale_fn!(bibytes2,
+          base: B1024,
+          constraint: UnitAndAbove,
+          mantissa_fmt: "{:.2}",
+          unit: "B",
+          doc: "Print a value in bibytes with 2 decimals.");
 
 #[cfg(test)]
 mod tests {

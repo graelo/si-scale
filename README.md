@@ -155,7 +155,8 @@ mod unit_fmt {
               constraint: UnitAndAbove,
               mantissa_fmt: "{:.2}",
               groupings: '_',
-              unit: "bit/s");
+              unit: "bit/s",
+              doc: "Return a string with the value and its si-scaled unit of bit/s.");
 }
 
 use unit_fmt::bits_per_sec;

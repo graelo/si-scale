@@ -1,3 +1,47 @@
+//! Represents a float value using its mantissa and unit Prefix in a base.
+//!
+//! With base = 1000, 1k = 1000, 1M = 1_000_000, 1m = 0.001, 1µ = 0.000_001,
+//! etc.
+//!
+//! | min (incl.) | max (excl.)      | magnitude | prefix          |
+//! | ---         | ---              | ---       | ----            |
+//! | ..          | ..               | -24       | `Prefix::Yocto` |
+//! | ..          | ..               | -21       | `Prefix::Zepto` |
+//! | ..          | ..               | -18       | `Prefix::Atto`  |
+//! | ..          | ..               | -15       | `Prefix::Femto` |
+//! | ..          | ..               | -12       | `Prefix::Pico`  |
+//! | ..          | ..               | -9        | `Prefix::Nano`  |
+//! | 0.000\_001  | 0.001            | -6        | `Prefix::Micro` |
+//! | 0.001       | 1                | -3        | `Prefix::Milli` |
+//! | 1           | 1_000            | 0         | `Prefix::Unit`  |
+//! | 1000        | 1\_000\_000      | 3         | `Prefix::Kilo`  |
+//! | 1\_000\_000 | 1\_000\_000\_000 | 6         | `Prefix::Mega`  |
+//! | ..          | ..               | 9         | `Prefix::Giga`  |
+//! | ..          | ..               | 12        | `Prefix::Tera`  |
+//! | ..          | ..               | 15        | `Prefix::Peta`  |
+//! | ..          | ..               | 18        | `Prefix::Exa`   |
+//! | ..          | ..               | 21        | `Prefix::Zetta` |
+//! | ..          | ..               | 24        | `Prefix::Yotta` |
+//!
+//! The base is usually 1000, but can also be 1024 (bibytes).
+//!
+//! With base = 1024, 1ki = 1024, 1Mi = 1024 * 1024, etc.
+//!
+//! # Example
+//!
+//! ```
+//! use std::convert::From;
+//! use si_scale::{base::Base, value::Value, prefix::Prefix};
+//!
+//! let actual = Value::from(0.123);
+//! let expected = Value {
+//!     mantissa: 123f64,
+//!     prefix: Prefix::Milli,
+//!     base: Base::B1000,
+//! };
+//! assert_eq!(actual, expected);
+//! ```
+
 use crate::prefix::Prefix;
 use std::convert::From;
 use std::fmt;
@@ -5,54 +49,16 @@ use std::fmt;
 use crate::base::Base;
 use crate::prefix::Constraint;
 
-/// Represents a float value using its mantissa and unit Prefix in a base.
-///
-/// With base = 1000, 1k = 1000, 1M = 1_000_000, 1m = 0.001, 1µ = 0.000_001,
-/// etc.
-///
-/// | min (incl.) | max (excl.)      | magnitude | prefix          |
-/// | ---         | ---              | ---       | ----            |
-/// | ..          | ..               | -24       | `Prefix::Yocto` |
-/// | ..          | ..               | -21       | `Prefix::Zepto` |
-/// | ..          | ..               | -18       | `Prefix::Atto`  |
-/// | ..          | ..               | -15       | `Prefix::Femto` |
-/// | ..          | ..               | -12       | `Prefix::Pico`  |
-/// | ..          | ..               | -9        | `Prefix::Nano`  |
-/// | 0.000\_001  | 0.001            | -6        | `Prefix::Micro` |
-/// | 0.001       | 1                | -3        | `Prefix::Milli` |
-/// | 1           | 1_000            | 0         | `Prefix::Unit`  |
-/// | 1000        | 1\_000\_000      | 3         | `Prefix::Kilo`  |
-/// | 1\_000\_000 | 1\_000\_000\_000 | 6         | `Prefix::Mega`  |
-/// | ..          | ..               | 9         | `Prefix::Giga`  |
-/// | ..          | ..               | 12        | `Prefix::Tera`  |
-/// | ..          | ..               | 15        | `Prefix::Peta`  |
-/// | ..          | ..               | 18        | `Prefix::Exa`   |
-/// | ..          | ..               | 21        | `Prefix::Zetta` |
-/// | ..          | ..               | 24        | `Prefix::Yotta` |
-///
-/// The base is usually 1000, but can also be 1024 (bibytes).
-///
-/// With base = 1024, 1ki = 1024, 1Mi = 1024 * 1024, etc.
-///
-/// # Example
-///
-/// ```
-/// use std::convert::From;
-/// use si_scale::{base::Base, value::Value, prefix::Prefix};
-///
-/// let actual = Value::from(0.123);
-/// let expected = Value {
-///     mantissa: 123f64,
-///     prefix: Prefix::Milli,
-///     base: Base::B1000,
-/// };
-/// assert_eq!(actual, expected);
-/// ```
-///
+/// Defines the representation of the value.
 #[derive(Debug, PartialEq)]
 pub struct Value {
+    /// Mantissa of the value after scaling.
     pub mantissa: f64,
+
+    /// Prefix indicating the scale.
     pub prefix: Prefix,
+
+    /// Indicates if the base is `1000` or `1024`.
     pub base: Base,
 }
 
@@ -115,11 +121,11 @@ impl Value {
     /// assert_eq!(actual, expected);
     /// ```
     ///
-    #[deprecated(
-        since = "0.2.0",
-        note = "please use the `Value::constraint` and `Value::base` methods instead"
-    )]
-    #[allow(deprecated)]
+    // #[deprecated(
+    //     since = "0.2.0",
+    //     note = "please use the `Value::constraint()` and `Value::base()` methods instead"
+    // )]
+    // #[allow(deprecated)]
     pub fn new_with<F, C>(x: F, base: Base, prefix_constraint: C) -> Self
     where
         F: Into<f64>,
@@ -152,6 +158,17 @@ impl Value {
     //             }
     //         }
     //     }
+
+    // pub fn constraint<C>(&self, prefix_constraint: C) -> Self
+    // where
+    //     C: AsRef<Constraint>,
+    // {
+    //     Value {
+    //         mantissa: self.mantissa,
+    //         prefix: prefix_constraint.as_ref(),
+    //         base: self.base,
+    //     }
+    // }
 
     /// Converts `self` to a `f64`.
     ///

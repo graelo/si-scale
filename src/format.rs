@@ -1,3 +1,5 @@
+//! The `format_value` macro.
+
 /// Formats a [`Value`][`crate::value::Value`]'s mantissa and unit prefix (but
 /// not the unit itself). Because it simply delegates to
 /// [`format_args!()`][`std::format_args`], the output should be consumed by

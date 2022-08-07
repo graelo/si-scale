@@ -1,7 +1,17 @@
+//! The prefix is added to the unit string representation, such as `µ` in `µs`,
+//! and requires the mantissa to be scaled accordingly.
+
 use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
 
+/// Concise definition of constraints on the prefix.
+///
+/// This allows forcing the mantissa to not be scaled, or to be scaled only
+/// towards higher scales such as `k` or `M`, or towards lower scales such as
+/// `µ`.
+///
+/// You can also define your custom constraint.
 pub mod constraint {
     use super::Prefix;
 

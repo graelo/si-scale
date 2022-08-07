@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
 //! [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
 //! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
@@ -151,7 +153,8 @@
 //!               constraint: UnitAndAbove,
 //!               mantissa_fmt: "{:.2}",
 //!               groupings: '_',
-//!               unit: "bit/s");
+//!               unit: "bit/s",
+//!               doc: "Return a string with the value and its si-scaled unit of bit/s.");
 //! }
 //!
 //! use unit_fmt::bits_per_sec;
@@ -459,11 +462,14 @@
 //! for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 //! be dual licensed as above, without any additional terms or conditions.
 
+/// Error type used by this crate.
 #[derive(Debug, PartialEq, Eq)]
 pub enum SIUnitsError {
+    /// Indicates an error occurred when parsing the exponent.
     ExponentParsing(String),
 }
 
+/// Result type used by this crate.
 pub type Result<T> = std::result::Result<T, SIUnitsError>;
 
 pub mod base;
@@ -472,6 +478,7 @@ pub mod helpers;
 pub mod prefix;
 pub mod value;
 
+/// Holds first-class citizens of this crate, for convenience.
 pub mod prelude {
     pub use crate::base::Base;
     pub use crate::prefix::{Constraint, Prefix};

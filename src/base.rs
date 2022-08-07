@@ -1,3 +1,5 @@
+//! Defines the `Base` struct and methods.
+
 /// Represents the base for units [Prefix](crate::prefix::Prefix).
 ///
 #[derive(Debug, PartialEq)]
