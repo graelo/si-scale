@@ -72,9 +72,11 @@
 //! | `bytes()`    | `1234567`              | `1.234567 MB`          |
 //! | `bytes_()`   | `1234567`              | `1_234_567 B`          |
 //! | `bytes1()`   | `2.3 * 1e12`           | `2.3 TB`               |
+//! | `bytes2()`   | `2.3 * 1e12`           | `2.30 TB`              |
 //! | ---          | ---                    | ---                    |
 //! | `bibytes()`  | `1024 * 1024 * 1.25`   | `1.25 MiB`             |
 //! | `bibytes1()` | `1024 * 1024 * 1.25`   | `1.3 MiB`              |
+//! | `bibytes2()` | `1024 * 1024 * 1.25`   | `1.25 MiB`             |
 //!
 //! ## Custom helper functions - BYOU (bring your own unit)
 //!
@@ -92,9 +94,11 @@
 //! | `bytes()`    | `"{}"`    | `UnitAndAbove`    | B1000 | none      | `1234567`              | `1.234567 MB`          |
 //! | `bytes_()`   | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1234567`              | `1_234_567 B`          |
 //! | `bytes1()`   | `"{:.1}"` | `UnitAndAbove`    | B1000 | none      | `2.3 * 1e12`           | `2.3 TB`               |
+//! | `bytes2()`   | `"{:.2}"` | `UnitAndAbove`    | B1000 | none      | `2.3 * 1e12`           | `2.30 TB`              |
 //! | ---          | --        | ---               | ---   | ---       | ---                    | ---                    |
 //! | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | none      | `1024 * 1024 * 1.25`   | `1.25 MiB`             |
 //! | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1024 * 1024 * 1.25`   | `1.3 MiB`              |
+//! | `bibytes2()` | `"{:.2}"` | `UnitAndAbove`    | B1024 | none      | `1024 * 1024 * 1.25`   | `1.25 MiB`             |
 //!
 //! The additional table columns show the underlying controls.
 //!
