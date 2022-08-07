@@ -66,6 +66,9 @@
 //! assert_eq!(actual, expected);
 //! ```
 
+// Three nearly identical variants: with the unit argument only, with unit and
+// groupings arguments, with groupings argument only. If you happen to know how
+// to factor this, please make a suggestion!
 #[macro_export]
 macro_rules! scale_fn {
     (
@@ -169,7 +172,6 @@ scale_fn!(bytes,
           base: B1000,
           constraint: UnitAndAbove,
           mantissa_fmt: "{}",
-          groupings: '_',
           unit: "B");
 
 scale_fn!(bytes_,
@@ -183,7 +185,6 @@ scale_fn!(bytes1,
           base: B1000,
           constraint: UnitAndAbove,
           mantissa_fmt: "{:.1}",
-          groupings: '_',
           unit: "B");
 
 // bibytes
@@ -192,7 +193,6 @@ scale_fn!(bibytes,
           base: B1024,
           constraint: UnitAndAbove,
           mantissa_fmt: "{}",
-          groupings: '_',
           unit: "B");
 
 scale_fn!(bibytes1,
@@ -206,7 +206,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_number() {
+    fn test_number_() {
         let actual = format!("result is {}", number_(1234.5678));
         let expected = "result is 1_234.567_8";
         assert_eq!(actual, expected);
@@ -263,6 +263,36 @@ mod tests {
     }
 
     #[test]
+    fn test_bytes() {
+        let actual = format!("result is {}", bytes(12_345_678));
+        let expected = "result is 12.345678 MB";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {:>10}", bytes(16));
+        let expected = "result is       16 B";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", bytes(0.123456));
+        let expected = "result is 0.123456 B";
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_bytes_() {
+        let actual = format!("result is {}", bytes_(12_345_678));
+        let expected = "result is 12_345_678 B";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {:>10}", bytes_(16));
+        let expected = "result is       16 B";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", bytes_(0.123456));
+        let expected = "result is 0.123_456 B";
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
     fn test_bytes1() {
         let actual = format!("result is {}", bytes1(12_345_678));
         let expected = "result is 12.3 MB";
@@ -279,6 +309,25 @@ mod tests {
 
     #[test]
     fn test_bibytes() {
+        let actual = format!("result is {}", bibytes(11.8 * (1024 * 1024) as f64));
+        let expected = "result is 11.8 MiB";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", bibytes(16 * 1024));
+        let expected = "result is 16 kiB";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {:>10}", bibytes(16));
+        let expected = "result is       16 B";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", bibytes(0.123456));
+        let expected = "result is 0.123456 B";
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_bibytes1() {
         let actual = format!("result is {}", bibytes1(12_345_678));
         let expected = "result is 11.8 MiB";
         assert_eq!(actual, expected);
