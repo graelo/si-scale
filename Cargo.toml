@@ -1,6 +1,6 @@
 [package]
 name = "si-scale"
-version = "0.1.5"
+version = "0.2.0"
 edition = "2018"
 description = "Format values using the appropriate SI scale: seconds(1.3e-5) -> 13 µs"
 readme = "README.md"
