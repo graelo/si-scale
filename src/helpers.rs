@@ -364,4 +364,15 @@ mod tests {
         let expected = "result is 0.1 B";
         assert_eq!(actual, expected);
     }
+
+    #[test]
+    fn test_issue_8() {
+        let actual = format!("result is {}", seconds3(178.844052305));
+        let expected = "result is 178.844 s";
+        assert_eq!(actual, expected);
+
+        let actual = format!("result is {}", seconds3(83.99999999999999e-9));
+        let expected = "result is 84.000 ns";
+        assert_eq!(actual, expected);
+    }
 }
