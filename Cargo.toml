@@ -2,19 +2,16 @@
 name = "si-scale"
 version = "0.1.5"
 edition = "2018"
+description = "Format values using the appropriate SI scale: seconds(1.3e-5) -> 13 µs"
+readme = "README.md"
 
-license = "MIT/Apache-2.0"
+license = "MIT OR Apache-2.0"
+authors = ["graelo <graelo@grael.cc"]
 repository = "https://github.com/graelo/si-scale"
 homepage = "https://github.com/graelo/si-scale"
 documentation = "https://docs.rs/si-scale"
-description = """
-Formats values using the appropriate SI scale (could be named `pretty-units`).
-
-seconds(1.3e-5) -> 13 µs
-"""
 
 keywords = ["units", "pretty", "human", "number", "si-units"]
-readme = "README.md"
 categories = ["value-formatting", "science"]
 exclude = ["/.github", "/ci", "/.travis.yml", "/appveyor.yml"]
 

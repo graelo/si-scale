@@ -199,7 +199,6 @@ scale_fn!(bibytes1,
           base: B1024,
           constraint: UnitAndAbove,
           mantissa_fmt: "{:.1}",
-          groupings: '_',
           unit: "B");
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 //! [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
 //! [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
 //! [![minimum rustc 1.8](https://img.shields.io/badge/rustc-1.50+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
-//! [![build status](https://github.com/u0xy/si-scale/workflows/main/badge.svg)](https://github.com/u0xy/si-scale/actions)
+//! [![build status](https://github.com/graelo/si-scale/workflows/main/badge.svg)](https://github.com/graelo/si-scale/actions)
 //!
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 //!
@@ -9,24 +9,34 @@
 //!
 //! ```toml
 //! [dependencies]
-//! si-scale = "0.1"
+//! si-scale = "0.2"
 //! ```
 //!
+//! ## Overview
+//!
+//! This crate formats numbers using the
+//! [SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
+//! from 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24).
+//!
+//! It has the same purpose as the great
+//! [human-repr](https://docs.rs/human-repr), but strikes a different balance:
+//!
+//! - this crate yields more terse code at the call sites
+//! - it gives you more control over the output. As shown later in this page,
+//! you can extend it pretty easily to handle throughput, etc. (seriously, see
+//! below)
+//! - but it only operates on numbers, so it does not prevent you from using a
+//! function to print meters on a duration value (which human-repr does
+//! brilliantly).
 //!
 //! ## Getting started
 //!
-//! This crate parses and formats numbers using the
-//! [SI Scales](https://en.wikipedia.org/wiki/International_System_of_Units):
-//! from 1 y (yocto, i.e. 1e-24) to 1 Y (Yotta, i.e. 1e24). It is essentially
-//! agnostic of units per-se; you can totally keep representing units with
-//! strings or [uom](https://crates.io/crates/uom), or something else.
+//! To use this crate, either use one of the few pre-defined helper functions,
+//! or build your own.
 //!
+//! Basic example:
 //!
-//! ### Pre-defined helper functions
-//!
-//! You can use one of the predefined helper functions to format numbers:
-//!
-//! ```
+//! ```rust
 //! use si_scale::helpers::{seconds, seconds3};
 //!
 //! let actual = format!("{}", seconds(1.3e-5));
@@ -38,50 +48,99 @@
 //! assert_eq!(actual, expected);
 //! ```
 //!
+//! ### Pre-defined helper functions
+//!
+//! The helper functions use the following naming convention:
+//!
+//! - the name indicates the units to use
+//! - a number suffix indicates the decimal digits for floating points
+//! - a `_` suffix indicates the digits use "thousands grouping"
+//!
+//! But that's up to you to depart from that when writing your own functions.
+//!
 //! Currently the helper functions are:
 //!
-//! | helper fn    | mantissa  | prefix constraint | base  | groupings | example                |
-//! | ---          | --        | ---               | ---   | ---       | ---                    |
-//! | `number_()`  | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1.234567`, `16`       |
-//! | ---          | --        | ---               | ---   | ---       | ---                    |
-//! | `seconds()`  | `"{}"`    | `UnitAndBelow`    | B1000 | none      | `1.234567 µs`, `16 ms` |
-//! | `seconds3()` | `"{:.3}"` | `UnitAndBelow`    | B1000 | none      | `1.235 µs`, `16.000 ms`|
-//! | ---          | --        | ---               | ---   | ---       | ---                    |
-//! | `bytes()`    | `"{}"`    | `UnitAndAbove`    | B1000 | `_`       | `1.234_567 kB`         |
-//! | `bytes_()`   | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1_234_567 B`          |
-//! | `bytes1()`   | `"{:.1}"` | `UnitAndAbove`    | B1000 | none      | `2.3 TB`               |
-//! | ---          | --        | ---               | ---   | ---       | ---                    |
-//! | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | `_`       | `1.234_567 MiB`        |
-//! | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1.2 GiB`              |
+//! | helper fn    | input                  | output                 |
+//! | ---          | ---                    | ---                    |
+//! | `number_()`  | `1.234567`, `1515`     | `1.234_567`, `1_515`   |
+//! | ---          | ---                    | ---                    |
+//! | `seconds()`  | `1.234567e-6`, `16e-3` | `1.234567 µs`, `16 ms` |
+//! | `seconds3()` | `1.234567e-6`, `16e-3` | `1.235 µs`, `16.000 ms`|
+//! | ---          | ---                    | ---                    |
+//! | `bytes()`    | `1234567`              | `1.234567 MB`          |
+//! | `bytes_()`   | `1234567`              | `1_234_567 B`          |
+//! | `bytes1()`   | `2.3 * 1e12`           | `2.3 TB`               |
+//! | ---          | ---                    | ---                    |
+//! | `bibytes()`  | `1024 * 1024 * 1.25`   | `1.25 MiB`             |
+//! | `bibytes1()` | `1024 * 1024 * 1.25`   | `1.3 MiB`              |
 //!
-//! - The prefix constraint reduces the possible scales for a value (it is
-//! "unit" like in 1, not like in units of measurements). For instance,
-//! `UnitOnly` means the provided value won't be scaled: if you provide a
-//! value larger than 1000, say 1234, it will be printed as 1234. The
-//! `UnitAndBelow` constraint means the provided value won't use upper scales
-//! such as kilo, Mega, Tera, etc, but a small value will be scaled: 16 µs
-//! could be displayed, but not 16 Gs.
-//! - Base B1000 means 1k = 1000, the base B1024 means 1k = 1024
-//! - Groupings refer to "thousands groupings"; the provided char will be
-//! used (for instance 1234 is displayed as 1\_234), if none, the value is
-//! displayed 1234.
-//! - The mantissa format string only acts on the mantissa: `"{}"` will
-//! display the value with all its digits or no digits if it is round, and
-//! `"{:.1}"` for instance will always display one decimal.
-//!
-//!
-//! ## Custom helper functions
+//! ## Custom helper functions - BYOU (bring your own unit)
 //!
 //! To define your own format function, use the
 //! [`scale_fn!()`](`crate::scale_fn!()`) macro. All pre-defined helper
 //! functions from this crate are defined using this macro.
+//!
+//! | helper fn    | mantissa  | prefix constraint | base  | groupings | input                  | output                 |
+//! | ---          | --        | ---               | ---   | ---       | ---                    | ---                    |
+//! | `number_()`  | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1.234567`, `1515`     | `1.234_567`, `1_515`   |
+//! | ---          | --        | ---               | ---   | ---       | ---                    | ---                    |
+//! | `seconds()`  | `"{}"`    | `UnitAndBelow`    | B1000 | none      | `1.234567e-6`, `16e-3` | `1.234567 µs`, `16 ms` |
+//! | `seconds3()` | `"{:.3}"` | `UnitAndBelow`    | B1000 | none      | `1.234567e-6`, `16e-3` | `1.235 µs`, `16.000 ms`|
+//! | ---          | --        | ---               | ---   | ---       | ---                    | ---                    |
+//! | `bytes()`    | `"{}"`    | `UnitAndAbove`    | B1000 | none      | `1234567`              | `1.234567 MB`          |
+//! | `bytes_()`   | `"{}"`    | `UnitOnly`        | B1000 | `_`       | `1234567`              | `1_234_567 B`          |
+//! | `bytes1()`   | `"{:.1}"` | `UnitAndAbove`    | B1000 | none      | `2.3 * 1e12`           | `2.3 TB`               |
+//! | ---          | --        | ---               | ---   | ---       | ---                    | ---                    |
+//! | `bibytes()`  | `"{}"`    | `UnitAndAbove`    | B1024 | none      | `1024 * 1024 * 1.25`   | `1.25 MiB`             |
+//! | `bibytes1()` | `"{:.1}"` | `UnitAndAbove`    | B1024 | none      | `1024 * 1024 * 1.25`   | `1.3 MiB`              |
+//!
+//! The additional table columns show the underlying controls.
+//!
+//! #### The "mantissa" column
+//!
+//! It is a format string which only acts on the mantissa after scaling. For
+//! instance, `"{}"` will display the value with all its digits or no digits if
+//! it is round, and `"{:.1}"` for instance will always display one decimal.
+//!
+//! #### The "prefix constraint" column
+//!
+//! In a nutshell, this allows values to be represented in unsurprising scales:
+//! for instance, you would never write `1.2 ksec`, but always `1200 sec` or
+//! `1.2e3 sec`. In the same vein, you would never write `2 mB`, but always
+//! `0.002 B` or `2e-3 B`.
+//!
+//! So, here the term "unit" refers to the unit scale (`1`), and has nothing to
+//! do with units of measurements. It constrains the possible scales for a
+//! value:
+//!
+//! - `UnitOnly` means the provided value won't be scaled: if you provide a
+//!   value larger than 1000, say 1234, it will be printed as 1234.
+//! - `UnitAndAbove` means the provided value can only use higher scales, for
+//!   instance `16 GB` but never `4.3 µB`.
+//! - `UnitAndBelow` means the provided value can only use lower scales, for
+//!   instance `1.3 µsec` but not `16 Gsec`.
+//!
+//! #### The "base" column
+//!
+//! Base B1000 means 1k = 1000, the base B1024 means 1k = 1024. This is defined
+//! in an [IEC document](https://www.iec.ch/prefixes-binary-multiples). If you
+//! set the base to `B1024`, the mantissa will be scaled appropriately, but in
+//! most cases, you will be using `B1000`.
+//!
+//! #### The "groupings" column
+//!
+//! Groupings refer to "thousands groupings"; the provided char will be
+//! used (for instance 1234 is displayed as 1\_234), if none, the value is
+//! displayed 1234.
+//!
+//! ### BYOU - Example
 //!
 //! For instance, let's define a formatting function for bits per sec which
 //! prints the mantissa with 2 decimals, and also uses base 1024 (where 1 ki =
 //! 1024). Note that although we define the function in a separate module,
 //! this is not a requirement.
 //!
-//! ```
+//! ```rust
 //! mod unit_fmt {
 //!     use si_scale::scale_fn;
 //!     use si_scale::prelude::Value;
@@ -115,7 +174,7 @@
 //! thousands.
 //!
 //!
-//! ## SI Scales
+//! ## SI Scales - Developer doc
 //!
 //! With base = 1000, 1k = 1000, 1M = 1\_000\_000, 1m = 0.001, 1µ = 0.000\_001,
 //! etc.
