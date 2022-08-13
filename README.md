@@ -9,7 +9,7 @@
 
 Format value with units according to SI ([système international d’unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 
-_Version requirement: rustc 1.50+_
+Version requirement: _rustc 1.50+_
 
 ```toml
 [dependencies]
@@ -52,7 +52,7 @@ let expected = "13.000 µs";
 assert_eq!(actual, expected);
 ```
 
-### Pre-defined helper functions
+## Pre-defined helper functions
 
 The helper functions use the following naming convention:
 
@@ -104,13 +104,13 @@ functions from this crate are defined using this macro.
 
 The additional table columns show the underlying controls.
 
-#### The "mantissa" column
+### The "mantissa" column
 
 It is a format string which only acts on the mantissa after scaling. For
 instance, `"{}"` will display the value with all its digits or no digits if
 it is round, and `"{:.1}"` for instance will always display one decimal.
 
-#### The "prefix constraint" column
+### The "prefix constraint" column
 
 In a nutshell, this allows values to be represented in unsurprising scales:
 for instance, you would never write `1.2 ksec`, but always `1200 sec` or
@@ -128,20 +128,20 @@ value:
 - `UnitAndBelow` means the provided value can only use lower scales, for
   instance `1.3 µsec` but not `16 Gsec`.
 
-#### The "base" column
+### The "base" column
 
 Base B1000 means 1k = 1000, the base B1024 means 1k = 1024. This is defined
 in an [IEC document](https://www.iec.ch/prefixes-binary-multiples). If you
 set the base to `B1024`, the mantissa will be scaled appropriately, but in
 most cases, you will be using `B1000`.
 
-#### The "groupings" column
+### The "groupings" column
 
 Groupings refer to "thousands groupings"; the provided char will be
 used (for instance 1234 is displayed as 1\_234), if none, the value is
 displayed 1234.
 
-### BYOU - Example
+### Example - how to define a helper for kibits/s
 
 For instance, let's define a formatting function for bits per sec which
 prints the mantissa with 2 decimals, and also uses base 1024 (where 1 ki =
@@ -182,7 +182,6 @@ fn main() {
 You can omit the `groupings` argument of the macro to not separate
 thousands.
 
-
 ## SI Scales - Developer doc
 
 With base = 1000, 1k = 1000, 1M = 1\_000\_000, 1m = 0.001, 1µ = 0.000\_001,
@@ -208,12 +207,11 @@ etc.
 | ..          | ..               | 21        | `Prefix::Zetta` |
 | ..          | ..               | 24        | `Prefix::Yotta` |
 
-
 The base is usually 1000, but can also be 1024 (bibytes).
 
 With base = 1024, 1ki = 1024, 1Mi = 1024 * 1024, etc.
 
-## Overview
+### API overview
 
 The central representation is the [`Value`](`crate::value::Value`) type,
 which holds
@@ -250,7 +248,6 @@ For the high-level API, the typical use cases are
    `bibytes()`, `bytes()`, `seconds()` are all built using this same
    macro.
 
-
 ### The high-level API
 
 The `seconds3()` function parses a number into a `Value` and displays it
@@ -271,7 +268,7 @@ let expected = "result is   1.230 µs";
 assert_eq!(actual, expected);
 ```
 
-The `bytes()` function parses a number into a `Value` *using base 1000*
+The `bytes()` function parses a number into a `Value` _using base 1000_
 and displays it using 1 decimal and the appropriate scale for bytes
 (`UnitAndAbove`), so that non-sensical scales such as milli-bytes may not
 appear.
@@ -292,7 +289,7 @@ let expected = "result is 0.12 B";
 assert_eq!(actual, expected);
 ```
 
-The `bibytes1()` function parses a number into a `Value` *using base 1024*
+The `bibytes1()` function parses a number into a `Value` _using base 1024_
 and displays it using 1 decimal and the appropriate scale for bytes
 (`UnitAndAbove`), so that non-sensical scales such as milli-bytes may not
 appear.
@@ -316,7 +313,6 @@ let actual = format!("result is {}", bibytes(0.12));
 let expected = "result is 0.12 B";
 assert_eq!(actual, expected);
 ```
-
 
 ### The low-level API
 
@@ -372,7 +368,6 @@ assert_eq!(actual, expected);
 As you can see in the last example, values which scale are outside of the
 SI prefixes are represented using the closest SI prefix.
 
-
 #### Creating a `Value` with `Value::new_with()`
 
 The low-level [`Value::new_with()`](`crate::value::Value::new_with\(\)`)
@@ -398,7 +393,6 @@ assert_eq!(actual, expected);
 
 Don't worry yet about the verbosity, the following parser helps with this.
 
-
 #### Formatting values
 
 In this example, the number `x` is converted into a value and displayed
@@ -422,7 +416,6 @@ let actual = format!(
 let expected = "result is 1_234.567_80 s";
 assert_eq!(actual, expected);
 ```
-
 
 ## Run code-coverage
 
@@ -448,17 +441,14 @@ make coverage
 
 The coverage report is located in `./coverage/index.html`
 
-
-
 ## License
 
 Licensed under either of
 
- * [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
- * [MIT license](http://opensource.org/licenses/MIT)
+- [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- [MIT license](http://opensource.org/licenses/MIT)
 
 at your option.
-
 
 ### Contribution
 
@@ -467,4 +457,3 @@ for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
 
 <!-- cargo-sync-readme end -->
-
