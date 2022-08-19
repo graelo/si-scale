@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+#![allow(clippy::needless_doctest_main)]
 
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 //!
