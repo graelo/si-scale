@@ -1,6 +1,6 @@
 # Changelog
 
-## Between 0.1.x and 0.2
+## Between 0.1.x and 0.2.x
 
 ### Breaking changes
 
