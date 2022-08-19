@@ -11,6 +11,7 @@ jobs:
   test_linux:
     name: Test on Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
         rust: [1.50.0, stable, beta, nightly]
@@ -53,6 +54,7 @@ jobs:
   test_macOS:
     name: Test on macOS 11
     runs-on: macos-11
+    timeout-minutes: 20
     steps:
       - name: Rust install
         uses: actions-rs/toolchain@v1
