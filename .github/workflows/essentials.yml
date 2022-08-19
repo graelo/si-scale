@@ -11,7 +11,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     strategy:
       matrix:
         rust: [1.50.0, stable]
@@ -45,6 +44,7 @@ jobs:
           cargo clippy -- -D warnings
 
       - name: Install cargo check tools
+        timeout-minutes: 20
         run: |
           cargo install --locked cargo-deny || true
           cargo install --locked cargo-outdated || true
