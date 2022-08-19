@@ -1,4 +1,17 @@
-.PHONY: all clean test nightly coverage
+.PHONY: all clean test nightly coverage lint check
+
+all: lint check
+
+lint:
+	cargo fmt --all -- --check
+	cargo clippy -- -D warnings
+
+check:
+	cargo deny check
+	cargo outdated --exit-code 1
+	cargo +nightly udeps
+	cargo audit
+	cargo pants
 
 nightly:
 	rustup default nightly
