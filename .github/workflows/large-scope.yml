@@ -11,7 +11,6 @@ jobs:
   test_linux:
     name: Test on Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     strategy:
       matrix:
         rust: [1.50.0, stable, beta, nightly]
@@ -45,6 +44,24 @@ jobs:
           cargo fmt --all -- --check
           cargo clippy -- -D warnings
 
+      - name: Install cargo check tools
+        timeout-minutes: 20
+        run: |
+          # cargo install --locked cargo-deny || true  # needs 1.56.1
+          cargo install --locked cargo-outdated || true
+          # cargo install --locked cargo-udeps || true
+          cargo install --locked cargo-audit || true
+          cargo install --locked cargo-pants || true
+
+      - name: Check
+        run: |
+          # cargo deny check
+          cargo outdated --exit-code 1
+          # cargo udeps
+          rm -rf ~/.cargo/advisory-db
+          cargo audit
+          cargo pants
+
       - name: Build (dev)
         run: cargo build --all-features
 
@@ -54,7 +71,6 @@ jobs:
   test_macOS:
     name: Test on macOS 11
     runs-on: macos-11
-    timeout-minutes: 20
     steps:
       - name: Rust install
         uses: actions-rs/toolchain@v1
@@ -84,6 +100,24 @@ jobs:
         run: |
           cargo fmt --all -- --check
           cargo clippy -- -D warnings
+
+      - name: Install cargo check tools
+        timeout-minutes: 20
+        run: |
+          # cargo install --locked cargo-deny || true  # needs 1.56.1
+          cargo install --locked cargo-outdated || true
+          # cargo install --locked cargo-udeps || true
+          cargo install --locked cargo-audit || true
+          cargo install --locked cargo-pants || true
+
+      - name: Check
+        run: |
+          # cargo deny check
+          cargo outdated --exit-code 1
+          # cargo udeps
+          rm -rf ~/.cargo/advisory-db
+          cargo audit
+          cargo pants
 
       - name: Build (dev)
         run: cargo build --all-features

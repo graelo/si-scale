@@ -46,7 +46,7 @@ jobs:
       - name: Install cargo check tools
         timeout-minutes: 20
         run: |
-          cargo install --locked cargo-deny || true
+          # cargo install --locked cargo-deny || true  # needs 1.56.1
           cargo install --locked cargo-outdated || true
           # cargo install --locked cargo-udeps || true
           cargo install --locked cargo-audit || true
@@ -54,7 +54,7 @@ jobs:
 
       - name: Check
         run: |
-          cargo deny check
+          # cargo deny check
           cargo outdated --exit-code 1
           # cargo udeps
           rm -rf ~/.cargo/advisory-db
