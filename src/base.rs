@@ -2,7 +2,7 @@
 
 /// Represents the base for units [Prefix](crate::prefix::Prefix).
 ///
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Base {
     /// The most common base, where 1 k means `1000,` 1 M means `1000^2`, ...
     B1000,

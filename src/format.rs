@@ -126,7 +126,7 @@ fn separate_thousands_backward(input: &str, separator: char) -> String {
     let mut output = String::with_capacity(input.len() + input.len() / 4);
     let mut pos = 0;
     for ch in input.chars().rev() {
-        if ch.is_digit(10) {
+        if ch.is_ascii_digit() {
             // don't push a sep on first char
             if pos > 1 && pos % 3 == 0 {
                 output.push(separator);
@@ -142,7 +142,7 @@ fn separate_thousands_forward(input: &str, separator: char) -> String {
     let mut output = String::with_capacity(input.len() + input.len() / 4);
     let mut pos = 0;
     for ch in input.chars() {
-        if ch.is_digit(10) {
+        if ch.is_ascii_digit() {
             // don't push a sep on first char
             if pos > 1 && pos % 3 == 0 {
                 output.push(separator);
