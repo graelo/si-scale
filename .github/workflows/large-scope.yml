@@ -37,7 +37,7 @@ jobs:
              ~/.cargo/registry/cache/
              ~/.cargo/git/db/
              target/
-          key: '${{ runner.os }}-cargo-${{ hashFiles(''**/Cargo.lock'') }}'
+          key: '${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles(''**/Cargo.lock'') }}'
 
       - name: Lint
         run: |
@@ -46,16 +46,20 @@ jobs:
 
       - name: Install cargo check tools
         timeout-minutes: 20
+        if: ${{ matrix.rust == 'stable' }}
         run: |
-          # cargo install --locked cargo-deny || true  # needs 1.56.1
+          cargo install --locked convco || true
+          cargo install --locked cargo-deny || true
           cargo install --locked cargo-outdated || true
-          # cargo install --locked cargo-udeps || true
+          # cargo install --locked cargo-udeps || true # needs nightly
           cargo install --locked cargo-audit || true
           cargo install --locked cargo-pants || true
 
       - name: Check
+        if: ${{ matrix.rust == 'stable' }}
         run: |
-          # cargo deny check
+          convco check
+          cargo deny check
           cargo outdated --exit-code 1
           # cargo udeps
           rm -rf ~/.cargo/advisory-db
