@@ -13,6 +13,6 @@ documentation = "https://docs.rs/si-scale"
 
 keywords = ["units", "pretty", "human", "number", "si-units"]
 categories = ["value-formatting", "science"]
-exclude = ["/.github", "/ci", "/.travis.yml", "/appveyor.yml"]
+exclude = ["/.github"]
 
 [dependencies]
