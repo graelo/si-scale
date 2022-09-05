@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust: [1.50.0, stable]
+        rust: [stable]
     steps:
       - name: Rust install
         uses: actions-rs/toolchain@v1
@@ -25,6 +25,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ github.event.pull_request.commits }}
 
       - name: Cache crates from crates.io
         uses: actions/cache@v3
@@ -43,12 +45,26 @@ jobs:
           cargo fmt --all -- --check
           cargo clippy -- -D warnings
 
+      - name: Quality - convco check
+        run: |
+          git show-ref
+          curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
+          unzip convco-ubuntu.zip
+          chmod +x convco
+          ./convco check
+          rm convco
+
+      - name: Quality - cargo deny check
+        run: |
+          curl -sSfL https://github.com/EmbarkStudios/cargo-deny/releases/download/0.12.2/cargo-deny-0.12.2-x86_64-unknown-linux-musl.tar.gz | tar zx --no-anchored cargo-deny --strip-components=1
+          chmod +x cargo-deny
+          mv cargo-deny ~/.cargo/bin/
+          cargo deny check
+
       - name: Install cargo check tools
         timeout-minutes: 20
         if: ${{ matrix.rust == 'stable' }}
         run: |
-          cargo install --locked convco || true
-          cargo install --locked cargo-deny || true
           cargo install --locked cargo-outdated || true
           # cargo install --locked cargo-udeps || true # needs nightly
           cargo install --locked cargo-audit || true
@@ -57,16 +73,17 @@ jobs:
       - name: Check
         if: ${{ matrix.rust == 'stable' }}
         run: |
-          convco check
-          cargo deny check
           cargo outdated --exit-code 1
           # cargo udeps
           rm -rf ~/.cargo/advisory-db
-          cargo audit
+          cargo audit --ignore RUSTSEC-2020-0071 # time-rs, but not used by chrono, see https://github.com/chronotope/chrono/issues/602
           cargo pants
 
       - name: Build (dev)
         run: cargo build --all-features
+
+      - name: Build (release)
+        run: cargo build --all-features --release
 
       - name: Test
         run: ./ci/test_full.sh

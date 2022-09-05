@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - staging
-      - trying
 
 jobs:
   test_linux:
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust: [1.50.0, stable, beta, nightly]
+        rust: [1.50.0, beta, nightly]
 
     steps:
       - name: Rust install
@@ -44,37 +43,48 @@ jobs:
           cargo fmt --all -- --check
           cargo clippy -- -D warnings
 
-      - name: Install cargo check tools
-        timeout-minutes: 20
-        if: ${{ matrix.rust == 'stable' }}
-        run: |
-          cargo install --locked convco || true
-          cargo install --locked cargo-deny || true
-          cargo install --locked cargo-outdated || true
-          # cargo install --locked cargo-udeps || true # needs nightly
-          cargo install --locked cargo-audit || true
-          cargo install --locked cargo-pants || true
+      # - name: Install cargo check tools
+      #   timeout-minutes: 20
+      #   if: ${{ matrix.rust == 'stable' }}
+      #   run: |
+      #     cargo install --locked cargo-outdated || true
+      #     # cargo install --locked cargo-udeps || true # needs nightly
+      #     cargo install --locked cargo-audit || true
+      #     cargo install --locked cargo-pants || true
 
-      - name: Check
-        if: ${{ matrix.rust == 'stable' }}
-        run: |
-          convco check
-          cargo deny check
-          cargo outdated --exit-code 1
-          # cargo udeps
-          rm -rf ~/.cargo/advisory-db
-          cargo audit
-          cargo pants
+      # - name: Check
+      #   if: ${{ matrix.rust == 'stable' }}
+      #   run: |
+      #     cargo outdated --exit-code 1
+      #     # cargo udeps
+      #     rm -rf ~/.cargo/advisory-db
+      #     cargo audit --ignore RUSTSEC-2020-0071 # time-rs, but not used by chrono, see https://github.com/chronotope/chrono/issues/602
+      #     cargo pants
 
       - name: Build (dev)
         run: cargo build --all-features
 
+      - name: Build (release)
+        run: cargo build --all-features --release
+
       - name: Test
         run: ./ci/test_full.sh
 
-  test_macOS:
-    name: Test on macOS 11 with stable
-    runs-on: macos-11
+  test-other-platforms:
+    name: Test on other platforms with stable
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            type: unix
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            type: unix
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            type: windows
     steps:
       - name: Rust install
         uses: actions-rs/toolchain@v1
@@ -82,7 +92,7 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-          target: aarch64-apple-darwin
+          target: ${{ matrix.target }}
           components: rustfmt, clippy
 
       - name: Checkout
@@ -98,36 +108,54 @@ jobs:
              ~/.cargo/registry/cache/
              ~/.cargo/git/db/
              target/
-          key: '${{ runner.os }}-cargo-${{ hashFiles(''**/Cargo.lock'') }}'
+          key: '${{ runner.os }}-${{ matrix.target }}-cargo-stable-${{ hashFiles(''**/Cargo.lock'') }}'
 
       - name: Lint
         run: |
           cargo fmt --all -- --check
           cargo clippy -- -D warnings
 
+      # - name: Quality - convco check
+      #   run: |
+      #     git show-ref
+      #     curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
+      #     unzip convco-ubuntu.zip
+      #     chmod +x convco
+      #     ./convco check
+      #     rm convco
+      #   shell: bash
+
+      # - name: Quality - cargo deny check
+      #   run: |
+      #     curl -sSfL https://github.com/EmbarkStudios/cargo-deny/releases/download/0.12.2/cargo-deny-0.12.2-x86_64-unknown-linux-musl.tar.gz | tar zx --no-anchored cargo-deny --strip-components=1
+      #     chmod +x cargo-deny
+      #     mv cargo-deny ~/.cargo/bin/
+      #     cargo deny check
+      #   shell: bash
+
       - name: Install cargo check tools
         timeout-minutes: 20
         run: |
-          cargo install --locked convco || true
-          cargo install --locked cargo-deny || true
           cargo install --locked cargo-outdated || true
-          # cargo install --locked cargo-udeps || true
+          # cargo install --locked cargo-udeps || true # needs nightly
           cargo install --locked cargo-audit || true
           cargo install --locked cargo-pants || true
+        shell: bash
 
       - name: Check
         run: |
-          convco check
-          cargo deny check
           cargo outdated --exit-code 1
           # cargo udeps
           rm -rf ~/.cargo/advisory-db
-          cargo audit
+          cargo audit --ignore RUSTSEC-2020-0071 # time-rs, but not used by chrono, see https://github.com/chronotope/chrono/issues/602
           cargo pants
+        shell: bash
 
       - name: Build (dev)
         run: cargo build --all-features
-        # run: cargo build --target aarch64-apple-darwin --all-features
+
+      - name: Build (release)
+        run: cargo build --all-features --release
 
       - name: Test
         run: ./ci/test_full.sh
