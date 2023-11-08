@@ -2,7 +2,7 @@
 //! various units. They are probably the most used functions in this crate.
 //!
 //! You can extend with your own units and formatting using the
-//! [`scale_fn!()`] macro.
+//! `scale_fn!()` macro.
 //!
 //! The `seconds()` function parses a number into a `Value` and displays it
 //! using 3 decimals and the appropriate scale for seconds (`UnitAndBelow`),
@@ -79,7 +79,7 @@ macro_rules! scale_fn {
         unit: $unit_arg:literal,
         doc: $doc_arg:literal
     ) => {
-        /// $doc_arg
+        #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -106,7 +106,7 @@ macro_rules! scale_fn {
         unit: $unit_arg:literal,
         doc: $doc_arg:literal
     ) => {
-        /// doc_arg
+        #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -132,7 +132,7 @@ macro_rules! scale_fn {
         groupings: $sep_arg:literal,
         doc: $doc_arg:literal
     ) => {
-        /// $doc_arg
+        #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
