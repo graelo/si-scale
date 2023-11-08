@@ -79,7 +79,7 @@ macro_rules! scale_fn {
         unit: $unit_arg:literal,
         doc: $doc_arg:literal
     ) => {
-        /// $doc_arg
+        #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -106,7 +106,7 @@ macro_rules! scale_fn {
         unit: $unit_arg:literal,
         doc: $doc_arg:literal
     ) => {
-        /// doc_arg
+        #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
@@ -132,7 +132,7 @@ macro_rules! scale_fn {
         groupings: $sep_arg:literal,
         doc: $doc_arg:literal
     ) => {
-        /// $doc_arg
+        #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
             F: Into<f64>,
