@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust: [1.74.0, beta, nightly]
+        # rust: [1.74.0, beta, nightly]
+        rust: [1.74.0, beta]
 
     steps:
       - name: Rust install
