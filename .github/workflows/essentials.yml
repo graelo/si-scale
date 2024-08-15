@@ -16,20 +16,20 @@ jobs:
         rust: [stable]
     steps:
       - name: Rust install
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
           components: rustfmt, clippy
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ github.event.pull_request.commits }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          # fetch-depth: ${{ github.event.pull_request.commits }}
 
       - name: Cache crates from crates.io
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         continue-on-error: false
         with:
           path: |
@@ -48,35 +48,44 @@ jobs:
       - name: Quality - convco check
         run: |
           git show-ref
+          echo Commit message: "$(git log -1 --pretty=%B)"
           curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
           unzip convco-ubuntu.zip
           chmod +x convco
-          ./convco check
+          ./convco --version
+          ./convco check -c .convco
           rm convco
 
       - name: Quality - cargo deny check
         run: |
-          curl -sSfL https://github.com/EmbarkStudios/cargo-deny/releases/download/0.14.2/cargo-deny-0.14.2-x86_64-unknown-linux-musl.tar.gz | tar zx --no-anchored cargo-deny --strip-components=1
+          curl -sSfL https://github.com/EmbarkStudios/cargo-deny/releases/download/0.16.1/cargo-deny-0.16.1-x86_64-unknown-linux-musl.tar.gz | tar zx --no-anchored cargo-deny --strip-components=1
           chmod +x cargo-deny
           mv cargo-deny ~/.cargo/bin/
           cargo deny check
 
-      - name: Install cargo check tools
+      - name: Quality - cargo audit check
+        run: |
+          curl -sSfL https://github.com/rustsec/rustsec/releases/download/cargo-audit%2Fv0.17.3/cargo-audit-x86_64-unknown-linux-musl-v0.17.3.tgz | tar zx --no-anchored cargo-audit --strip-components=1
+          chmod +x cargo-audit
+          mv cargo-audit ~/.cargo/bin/
+          rm -rf ~/.cargo/advisory-db/
+          cargo audit --ignore RUSTSEC-2020-0071 # time-rs, but not used by chrono, see https://github.com/chronotope/chrono/issues/602
+
+      - name: Quality - cargo outdated
         timeout-minutes: 20
-        if: ${{ matrix.rust == 'stable' }}
         run: |
           cargo install --locked cargo-outdated || true
-          # cargo install --locked cargo-udeps || true # needs nightly
-          cargo install --locked cargo-audit || true
-          cargo install --locked cargo-pants || true
-
-      - name: Check
-        if: ${{ matrix.rust == 'stable' }}
-        run: |
-          cargo outdated --exit-code 1
-          # cargo udeps
           rm -rf ~/.cargo/advisory-db
-          cargo audit --ignore RUSTSEC-2020-0071 # time-rs, but not used by chrono, see https://github.com/chronotope/chrono/issues/602
+          cargo outdated --exit-code 1
+
+      # - name: Quality - cargo udeps (needs nightly)
+      #   run: |
+      #     cargo install --locked cargo-udeps || true
+      #     cargo udeps
+
+      - name: Quality - cargo pants
+        run: |
+          cargo install --locked cargo-pants || true
           cargo pants
 
       - name: Build (dev)

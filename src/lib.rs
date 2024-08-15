@@ -3,7 +3,7 @@
 
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 //!
-//! Version requirement: _rustc 1.50+_
+//! Version requirement: _rustc 1.74+_
 //!
 //! ```toml
 //! [dependencies]

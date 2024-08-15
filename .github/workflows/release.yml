@@ -1,0 +1,42 @@
+name: Release
+on:
+  push:
+   tags:
+     - 'v*'
+
+jobs:
+  release:
+    name: Create a GitHub Release
+    # if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          # convco needs all history to create the changelog
+          fetch-depth: 0
+
+      - name: Extract version
+        id: extract-version
+        run: |
+          echo "tag-name=${GITHUB_REF#refs/tags/}" >> ${GITHUB_OUTPUT}
+
+      - name: Download convco
+        run: |
+          git show-ref
+          curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
+          unzip convco-ubuntu.zip
+          chmod +x convco
+
+      - name: Use convco to create the changelog
+        run: |
+          ./convco changelog -c .convco --max-versions 1 --include-hidden-sections > CHANGELOG.md
+          rm convco convco-ubuntu.zip
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*.zip,*.tar.xz"
+          bodyFile: "CHANGELOG.md"
+          token: ${{ secrets.GITHUB_TOKEN }}
