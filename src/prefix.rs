@@ -93,10 +93,10 @@ impl Prefix {
     /// For instance,
     ///
     /// - if self is `-12` ("pico"), then `exponent()` returns `-12` so that
-    /// `Base::B1000.pow(-12)` returns the scaling factor `1e-12`.
+    ///   `Base::B1000.pow(-12)` returns the scaling factor `1e-12`.
     ///
     /// - if self is `3` ("kilo"), then `exponent()` returns `3` so that
-    /// `Base::B1024.pow(3)` returns the scaling factor `1024`.
+    ///   `Base::B1024.pow(3)` returns the scaling factor `1024`.
     pub fn exponent(&self) -> i32 {
         *self as i32
     }

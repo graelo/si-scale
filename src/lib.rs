@@ -21,11 +21,11 @@
 //!
 //! - this crate yields more terse code at the call sites
 //! - it gives you more control over the output. As shown later in this page,
-//! you can extend it pretty easily to handle throughput, etc. (seriously, see
-//! below)
+//!   you can extend it pretty easily to handle throughput, etc. (seriously, see
+//!   below)
 //! - but it only operates on numbers, so it does not prevent you from using a
-//! function to print meters on a duration value (which human-repr does
-//! brilliantly).
+//!   function to print meters on a duration value (which human-repr does
+//!   brilliantly).
 //!
 //! ## Getting started
 //!
@@ -213,7 +213,7 @@
 //! - the mantissa,
 //! - the SI unit prefix (such as "kilo", "Mega", etc),
 //! - and the base which represents the cases where "1 k" means 1000 (most
-//! common) and the cases where "1 k" means 1024 (for kiB, MiB, etc).
+//!   common) and the cases where "1 k" means 1024 (for kiB, MiB, etc).
 //!
 //! This crate provides 2 APIs: a low-level API, and a high-level API for
 //! convenience.
@@ -221,9 +221,9 @@
 //! For the low-level API, the typical use case is
 //!
 //! - first parse a number into a [`Value`](`crate::value::Value`). For doing
-//! this, you have to specify the base, and maybe some constraint on the SI
-//! scales. See [`Value::new()`](`crate::value::Value::new()`) and
-//! [`Value::new_with()`](`crate::value::Value::new_with()`)
+//!   this, you have to specify the base, and maybe some constraint on the SI
+//!   scales. See [`Value::new()`](`crate::value::Value::new()`) and
+//!   [`Value::new_with()`](`crate::value::Value::new_with()`)
 //!
 //! - then display the `Value` either by yourself formatting the mantissa
 //!   and prefix (implements the `fmt::Display` trait), or using the provided
