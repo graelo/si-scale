@@ -101,12 +101,15 @@ jobs:
           - os: macos-13
             target: x86_64-apple-darwin
             type: unix
+            toolchain: stable
           - os: macos-latest
             target: aarch64-apple-darwin
             type: unix
+            toolchain: stable
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             type: windows
+            toolchain: stable
     steps:
       - name: Rust install
         uses: dtolnay/rust-toolchain@master
