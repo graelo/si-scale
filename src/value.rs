@@ -49,6 +49,45 @@ use std::fmt;
 use crate::base::Base;
 use crate::prefix::Constraint;
 
+/// A trait for types that can be converted to `f64`.
+///
+/// This trait enables uniform handling of all numeric types, including those
+/// like `u64`, `i64`, `usize`, and `isize` that don't implement `Into<f64>`
+/// because the conversion may be lossy.
+pub trait IntoF64 {
+    /// Converts self to `f64`.
+    fn into_f64(self) -> f64;
+}
+
+macro_rules! impl_into_f64_lossless {
+    ($($t:ty),*) => {
+        $(
+            impl IntoF64 for $t {
+                #[inline]
+                fn into_f64(self) -> f64 {
+                    self.into()
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_into_f64_lossy {
+    ($($t:ty),*) => {
+        $(
+            impl IntoF64 for $t {
+                #[inline]
+                fn into_f64(self) -> f64 {
+                    self as f64
+                }
+            }
+        )*
+    };
+}
+
+impl_into_f64_lossless!(u8, i8, u16, i16, u32, i32, f32, f64);
+impl_into_f64_lossy!(u64, i64, usize, isize);
+
 /// Defines the representation of the value.
 #[derive(Debug, PartialEq)]
 pub struct Value {
@@ -99,7 +138,7 @@ impl Value {
     ///
     pub fn new<F>(x: F) -> Self
     where
-        F: Into<f64>,
+        F: IntoF64,
     {
         Value::new_with(x, Base::B1000, Constraint::None)
     }
@@ -128,10 +167,10 @@ impl Value {
     // #[allow(deprecated)]
     pub fn new_with<F, C>(x: F, base: Base, prefix_constraint: C) -> Self
     where
-        F: Into<f64>,
+        F: IntoF64,
         C: AsRef<Constraint>,
     {
-        let x: f64 = x.into();
+        let x: f64 = x.into_f64();
 
         // Closest integral exponent (multiple of 3)
         let exponent: i32 = base.integral_exponent_for(x);
@@ -298,10 +337,10 @@ impl_from_num_for_value!(u16);
 impl_from_num_for_value!(i16);
 impl_from_num_for_value!(u32);
 impl_from_num_for_value!(i32);
-// impl_from_num_for_value!(u64);
-// impl_from_num_for_value!(i64);
-// impl_from_num_for_value!(usize);
-// impl_from_num_for_value!(isize);
+impl_from_num_for_value!(u64);
+impl_from_num_for_value!(i64);
+impl_from_num_for_value!(usize);
+impl_from_num_for_value!(isize);
 impl_from_num_for_value!(f32);
 impl_from_num_for_value!(f64);
 
