@@ -3,7 +3,7 @@
 set -e
 
 CRATE=si-scale
-MSRV=1.74
+MSRV=1.78
 
 get_rust_version() {
   local array=($(rustc --version));

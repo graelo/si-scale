@@ -54,6 +54,11 @@ use crate::prefix::Constraint;
 /// This trait enables uniform handling of all numeric types, including those
 /// like `u64`, `i64`, `usize`, and `isize` that don't implement `Into<f64>`
 /// because the conversion may be lossy.
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` cannot be converted to `f64`",
+    label = "this type doesn't implement `IntoF64`",
+    note = "for `u64`, `i64`, `usize`, or `isize`, enable the `lossy-conversions` feature"
+)]
 pub trait IntoF64 {
     /// Converts self to `f64`.
     fn into_f64(self) -> f64;
