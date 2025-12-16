@@ -46,6 +46,16 @@
 //! assert_eq!(actual, expected);
 //! ```
 //!
+//! ## Features
+//!
+//! - **`lossy-conversions`**: enables support for `u64`, `i64`, `usize`, and
+//!   `isize`. These conversions may lose precision for values > 2^53.
+//!
+//! ```toml
+//! [dependencies]
+//! si-scale = { version = "0.2", features = ["lossy-conversions"] }
+//! ```
+//!
 //! ## Pre-defined helper functions
 //!
 //! The helper functions use the following naming convention:

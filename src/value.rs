@@ -72,6 +72,9 @@ macro_rules! impl_into_f64_lossless {
     };
 }
 
+impl_into_f64_lossless!(u8, i8, u16, i16, u32, i32, f32, f64);
+
+#[cfg(feature = "lossy-conversions")]
 macro_rules! impl_into_f64_lossy {
     ($($t:ty),*) => {
         $(
@@ -85,7 +88,7 @@ macro_rules! impl_into_f64_lossy {
     };
 }
 
-impl_into_f64_lossless!(u8, i8, u16, i16, u32, i32, f32, f64);
+#[cfg(feature = "lossy-conversions")]
 impl_into_f64_lossy!(u64, i64, usize, isize);
 
 /// Defines the representation of the value.
@@ -337,12 +340,17 @@ impl_from_num_for_value!(u16);
 impl_from_num_for_value!(i16);
 impl_from_num_for_value!(u32);
 impl_from_num_for_value!(i32);
-impl_from_num_for_value!(u64);
-impl_from_num_for_value!(i64);
-impl_from_num_for_value!(usize);
-impl_from_num_for_value!(isize);
 impl_from_num_for_value!(f32);
 impl_from_num_for_value!(f64);
+
+#[cfg(feature = "lossy-conversions")]
+impl_from_num_for_value!(u64);
+#[cfg(feature = "lossy-conversions")]
+impl_from_num_for_value!(i64);
+#[cfg(feature = "lossy-conversions")]
+impl_from_num_for_value!(usize);
+#[cfg(feature = "lossy-conversions")]
+impl_from_num_for_value!(isize);
 
 #[cfg(test)]
 mod tests {

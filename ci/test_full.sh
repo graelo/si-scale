@@ -27,8 +27,7 @@ if ! check_version $MSRV ; then
   exit 1
 fi
 
-FEATURES=()
-# check_version 1.74 && FEATURES+=(libm)
+FEATURES=(lossy-conversions)
 echo "Testing supported features: ${FEATURES[*]}"
 
 set -x

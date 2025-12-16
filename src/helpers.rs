@@ -378,6 +378,7 @@ mod tests {
 
     /// Test that usize, u64, i64, isize work with helper functions.
     /// See https://github.com/graelo/si-scale/issues/4
+    #[cfg(feature = "lossy-conversions")]
     #[test]
     fn test_issue_4_usize_support() {
         let size: usize = 12_345_678;

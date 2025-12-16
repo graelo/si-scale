@@ -15,4 +15,10 @@ keywords = ["units", "pretty", "human", "number", "si-units"]
 categories = ["value-formatting", "science"]
 exclude = ["/.github"]
 
+[features]
+default = []
+## Enable `IntoF64` for `u64`, `i64`, `usize`, and `isize`.
+## These conversions may lose precision for values > 2^53.
+lossy-conversions = []
+
 [dependencies]
