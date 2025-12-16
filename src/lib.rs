@@ -3,7 +3,7 @@
 
 //! Format value with units according to SI ([système international d'unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 //!
-//! Version requirement: _rustc 1.74+_
+//! Version requirement: _rustc 1.78+_
 //!
 //! ```toml
 //! [dependencies]
@@ -44,6 +44,16 @@
 //! let actual = format!("{}", seconds3(1.3e-5));
 //! let expected = "13.000 µs";
 //! assert_eq!(actual, expected);
+//! ```
+//!
+//! ## Features
+//!
+//! - **`lossy-conversions`**: enables support for `u64`, `i64`, `usize`, and
+//!   `isize`. These conversions may lose precision for values > 2^53.
+//!
+//! ```toml
+//! [dependencies]
+//! si-scale = { version = "0.2", features = ["lossy-conversions"] }
 //! ```
 //!
 //! ## Pre-defined helper functions
@@ -472,5 +482,5 @@ pub mod value;
 pub mod prelude {
     pub use crate::base::Base;
     pub use crate::prefix::{Constraint, Prefix};
-    pub use crate::value::Value;
+    pub use crate::value::{IntoF64, Value};
 }

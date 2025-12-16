@@ -157,7 +157,6 @@ fn separate_thousands_forward(input: &str, separator: char) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::format_value;
     use crate::value::Value;
 
     #[test]

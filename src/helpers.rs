@@ -82,7 +82,7 @@ macro_rules! scale_fn {
         #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
-            F: Into<f64>,
+            F: $crate::value::IntoF64,
         {
             let value = $crate::value::Value::new_with(
                 x,
@@ -109,7 +109,7 @@ macro_rules! scale_fn {
         #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
-            F: Into<f64>,
+            F: $crate::value::IntoF64,
         {
             let value = $crate::value::Value::new_with(
                 x,
@@ -135,7 +135,7 @@ macro_rules! scale_fn {
         #[doc=$doc_arg]
         pub fn $name<F>(x: F) -> String
         where
-            F: Into<f64>,
+            F: $crate::value::IntoF64,
         {
             let value = $crate::value::Value::new_with(
                 x,
@@ -373,6 +373,32 @@ mod tests {
 
         let actual = format!("result is {}", seconds3(83.99999999999999e-9));
         let expected = "result is 84.000 ns";
+        assert_eq!(actual, expected);
+    }
+
+    /// Test that usize, u64, i64, isize work with helper functions.
+    /// See https://github.com/graelo/si-scale/issues/4
+    #[cfg(feature = "lossy-conversions")]
+    #[test]
+    fn test_issue_4_usize_support() {
+        let size: usize = 12_345_678;
+        let actual = format!("result is {}", bytes1(size));
+        let expected = "result is 12.3 MB";
+        assert_eq!(actual, expected);
+
+        let size: u64 = 1_000_000_000;
+        let actual = format!("result is {}", bytes1(size));
+        let expected = "result is 1.0 GB";
+        assert_eq!(actual, expected);
+
+        let size: i64 = -500_000;
+        let actual = format!("result is {}", bytes1(size));
+        let expected = "result is -500.0 kB";
+        assert_eq!(actual, expected);
+
+        let size: isize = 2048;
+        let actual = format!("result is {}", bibytes1(size));
+        let expected = "result is 2.0 kiB";
         assert_eq!(actual, expected);
     }
 }

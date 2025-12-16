@@ -2,14 +2,14 @@
 
 [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
 [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
-[![minimum rustc 1.74](https://img.shields.io/badge/rustc-1.74+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
+[![minimum rustc 1.78](https://img.shields.io/badge/rustc-1.78+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 [![build status](https://github.com/graelo/si-scale/actions/workflows/essentials.yml/badge.svg)](https://github.com/graelo/si-scale/actions/workflows/essentials.yml)
 
 <!-- cargo-sync-readme start -->
 
 Format value with units according to SI ([système international d’unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 
-Version requirement: _rustc 1.74+_
+Version requirement: _rustc 1.78+_
 
 ```toml
 [dependencies]
@@ -27,11 +27,11 @@ It has the same purpose as the great
 
 - this crate yields more terse code at the call sites
 - it gives you more control over the output. As shown later in this page,
-you can extend it pretty easily to handle throughput, etc. (seriously, see
-below)
+  you can extend it pretty easily to handle throughput, etc. (seriously, see
+  below)
 - but it only operates on numbers, so it does not prevent you from using a
-function to print meters on a duration value (which human-repr does
-brilliantly).
+  function to print meters on a duration value (which human-repr does
+  brilliantly).
 
 ## Getting started
 
@@ -50,6 +50,16 @@ assert_eq!(actual, expected);
 let actual = format!("{}", seconds3(1.3e-5));
 let expected = "13.000 µs";
 assert_eq!(actual, expected);
+```
+
+## Features
+
+- **`lossy-conversions`**: enables support for `u64`, `i64`, `usize`, and
+  `isize`. These conversions may lose precision for values > 2^53.
+
+```toml
+[dependencies]
+si-scale = { version = "0.2", features = ["lossy-conversions"] }
 ```
 
 ## Pre-defined helper functions
@@ -219,7 +229,7 @@ which holds
 - the mantissa,
 - the SI unit prefix (such as "kilo", "Mega", etc),
 - and the base which represents the cases where "1 k" means 1000 (most
-common) and the cases where "1 k" means 1024 (for kiB, MiB, etc).
+  common) and the cases where "1 k" means 1024 (for kiB, MiB, etc).
 
 This crate provides 2 APIs: a low-level API, and a high-level API for
 convenience.
@@ -227,9 +237,9 @@ convenience.
 For the low-level API, the typical use case is
 
 - first parse a number into a [`Value`](`crate::value::Value`). For doing
-this, you have to specify the base, and maybe some constraint on the SI
-scales. See [`Value::new()`](`crate::value::Value::new\(\)`) and
-[`Value::new_with()`](`crate::value::Value::new_with\(\)`)
+  this, you have to specify the base, and maybe some constraint on the SI
+  scales. See [`Value::new()`](`crate::value::Value::new\(\)`) and
+  [`Value::new_with()`](`crate::value::Value::new_with\(\)`)
 
 - then display the `Value` either by yourself formatting the mantissa
   and prefix (implements the `fmt::Display` trait), or using the provided

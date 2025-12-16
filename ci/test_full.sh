@@ -3,7 +3,7 @@
 set -e
 
 CRATE=si-scale
-MSRV=1.74
+MSRV=1.78
 
 get_rust_version() {
   local array=($(rustc --version));
@@ -27,8 +27,7 @@ if ! check_version $MSRV ; then
   exit 1
 fi
 
-FEATURES=()
-# check_version 1.74 && FEATURES+=(libm)
+FEATURES=(lossy-conversions)
 echo "Testing supported features: ${FEATURES[*]}"
 
 set -x
