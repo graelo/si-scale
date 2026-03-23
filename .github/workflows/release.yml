@@ -1,8 +1,8 @@
 name: Release
 on:
   push:
-   tags:
-     - 'v*'
+    tags:
+      - 'v*'
 
 jobs:
   release:
@@ -21,7 +21,7 @@ jobs:
       - name: Extract version
         id: extract-version
         run: |
-          echo "tag-name=${GITHUB_REF#refs/tags/}" >> ${GITHUB_OUTPUT}
+          echo "tag-name=${GITHUB_REF#refs/tags/}" >> "${GITHUB_OUTPUT}"
 
       - name: Download convco
         run: |
@@ -37,6 +37,6 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "*.zip,*.tar.xz"
-          bodyFile: "CHANGELOG.md"
+          artifacts: '*.zip,*.tar.xz'
+          bodyFile: 'CHANGELOG.md'
           token: ${{ secrets.GITHUB_TOKEN }}
