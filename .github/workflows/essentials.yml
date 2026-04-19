@@ -43,7 +43,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('Cargo.toml') }}
 
       - name: Quality - cargo fmt
         run: |

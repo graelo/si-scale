@@ -34,7 +34,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-stable-audit-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-stable-audit-${{ hashFiles('Cargo.toml') }}
 
       - name: cargo deny check
         env:

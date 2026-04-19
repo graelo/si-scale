@@ -40,7 +40,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('Cargo.toml') }}
 
       - name: Quality - cargo fmt
         run: |
@@ -111,7 +111,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-${{ matrix.target }}-cargo-stable-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('Cargo.toml') }}
 
       - name: Build (dev)
         run: cargo build --all-features
