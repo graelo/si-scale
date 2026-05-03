@@ -1,12 +1,16 @@
 # Test pre-releases on a larger scope (platforms & versions) to avoid bad surprises.
 
-name: Large scope
+name: 'CI: Compatibility Matrix'
 on:
   push:
     branches:
       - staging
 
 permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   test-versions:
@@ -19,7 +23,7 @@ jobs:
         rust: [1.78.0, beta, nightly]
 
     steps:
-      - name: Rust install
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: ${{ matrix.rust }}
@@ -42,11 +46,11 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('Cargo.toml') }}
 
-      - name: Quality - cargo fmt
+      - name: Quality – cargo fmt
         run: |
           cargo fmt --all -- --check
 
-      - name: Quality - cargo clippy
+      - name: Quality – cargo clippy
         run: |
           cargo clippy --all-targets --all-features -- -D warnings
 
@@ -89,7 +93,7 @@ jobs:
             type: windows
             toolchain: stable
     steps:
-      - name: Rust install
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: ${{ matrix.toolchain }}

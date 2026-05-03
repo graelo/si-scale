@@ -3,7 +3,7 @@
 [![crate](https://img.shields.io/crates/v/si-scale.svg)](https://crates.io/crates/si-scale)
 [![documentation](https://docs.rs/si-scale/badge.svg)](https://docs.rs/si-scale)
 [![minimum rustc 1.78](https://img.shields.io/badge/rustc-1.78+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
-[![build status](https://github.com/graelo/si-scale/actions/workflows/essentials.yml/badge.svg)](https://github.com/graelo/si-scale/actions/workflows/essentials.yml)
+[![build status](https://github.com/graelo/si-scale/actions/workflows/ci-essentials.yml/badge.svg)](https://github.com/graelo/si-scale/actions/workflows/ci-essentials.yml)
 
 <!-- cargo-sync-readme start -->
 
