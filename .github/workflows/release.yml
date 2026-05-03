@@ -6,9 +6,13 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   release:
-    name: Create a GitHub Release
+    name: Publish release
     runs-on: ubuntu-latest
     permissions:
       contents: write

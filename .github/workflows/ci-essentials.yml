@@ -1,6 +1,6 @@
 # Any commit on main & PRs
 
-name: Essentials
+name: 'CI: Essentials'
 on:
   push:
     branches:
@@ -9,9 +9,13 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    name: Quality checks & tests
+    name: Build & test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,7 +23,7 @@ jobs:
       matrix:
         rust: [stable]
     steps:
-      - name: Rust install
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: ${{ matrix.rust }}
@@ -45,15 +49,15 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('Cargo.toml') }}
 
-      - name: Quality - cargo fmt
+      - name: Quality – cargo fmt
         run: |
           cargo fmt --all -- --check
 
-      - name: Quality - cargo clippy
+      - name: Quality – cargo clippy
         run: |
           cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Quality - convco check
+      - name: Quality – convco check
         run: |
           git show-ref
           curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
@@ -108,7 +112,7 @@ jobs:
     if: needs.changes.outputs.cargo_lock == 'true'
     permissions:
       contents: read
-    uses: ./.github/workflows/cargo-audit.yml
+    uses: ./.github/workflows/_cargo-audit.yml
 
   ci-security:
     needs: changes
@@ -117,4 +121,4 @@ jobs:
       security-events: write
       contents: read
       actions: read
-    uses: ./.github/workflows/ci-security.yml
+    uses: ./.github/workflows/_ci-security.yml
