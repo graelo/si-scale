@@ -74,7 +74,7 @@ jobs:
         run: cargo build --all-features --release
 
       - name: Install cargo-nextest
-        uses: taiki-e/install-action@481c34c1cf3a84c68b5e46f4eccfc82af798415a # v2.75.23
+        uses: taiki-e/install-action@ec28e287910af896fd98e04056d31fa68607e7ad # v2.77.4
         with:
           tool: cargo-nextest@0.9.133
 
