@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Cache crates from crates.io
+      - name: Cache crates
         if: github.event_name == 'pull_request'
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: false
@@ -90,22 +90,24 @@ jobs:
       cargo_lock: ${{ steps.filter.outputs.cargo_lock }}
       workflows: ${{ steps.filter.outputs.workflows }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - id: filter
+      - name: Filter changed paths
+        id: filter
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           filters: |
             cargo_lock:
-              - Cargo.toml
-              - Cargo.lock
+              - 'Cargo.toml'
+              - 'Cargo.lock'
             workflows:
-              - .github/workflows/**
-              - .github/actions/**
-              - .github/poutine.yml
-              - .github/zizmor.yml
-              - renovate.json
+              - '.github/workflows/**'
+              - '.github/actions/**'
+              - '.github/poutine.yml'
+              - '.github/zizmor.yml'
+              - 'renovate.json'
 
   cargo-audit:
     needs: changes
