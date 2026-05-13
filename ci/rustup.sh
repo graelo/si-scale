@@ -5,6 +5,6 @@
 set -ex
 
 ci=$(dirname $0)
-for version in 1.50.0 stable beta nightly; do
+for version in 1.78.0 stable beta nightly; do
     rustup run "$version" "$ci/test_full.sh"
 done

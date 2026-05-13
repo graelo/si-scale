@@ -1,10 +1,15 @@
-# Test pre-releases on a larger scope (platforms & versions) to avoid bad surprises.
+# Compatibility testing: multi-version and multi-platform matrix.
+#
+# Local:
+#   act push -W .github/workflows/ci-compatibility-matrix.yml -j test-all-versions
+#   act push -W .github/workflows/ci-compatibility-matrix.yml -j test-all-platforms
 
 name: 'CI: Compatibility Matrix'
+
 on:
   push:
     branches:
-      - staging
+      - 'compat/*'
 
 permissions: {}
 
@@ -13,15 +18,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-versions:
-    name: Tests on Linux
+  test-all-versions:
+    name: ubuntu-latest (${{ matrix.rust }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    defaults:
+      run:
+        shell: bash
     strategy:
       matrix:
-        rust: [1.78.0, beta, nightly]
-
+        rust: ['1.78.0', beta, nightly]
     steps:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
@@ -33,18 +40,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-
-      - name: Cache crates from crates.io
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-hash-${{ hashFiles('Cargo.toml') }}
 
       - name: Quality – cargo fmt
         run: |
@@ -68,54 +63,49 @@ jobs:
       - name: Test
         run: ./ci/test_full.sh
 
-  test-other-platforms:
-    name: Tests on
+  test-all-platforms:
+    name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
+    defaults:
+      run:
+        shell: bash
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - os: macos-15-intel
-            target: x86_64-apple-darwin
-            type: unix
-            toolchain: stable
-          - os: ubuntu-24.04-arm
-            target: aarch64-unknown-linux-gnu
-            type: unix
-            toolchain: stable
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            type: unix
-            toolchain: stable
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            type: windows
-            toolchain: stable
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-24.04-arm
+          - target: x86_64-apple-darwin
+            os: macos-15-intel
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-pc-windows-msvc
+            os: windows-11-arm
     steps:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: ${{ matrix.toolchain }}
+          toolchain: stable
           targets: ${{ matrix.target }}
-          components: rustfmt, clippy
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
-      - name: Cache crates from crates.io
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('Cargo.toml') }}
+      - name: Install musl-tools (Linux)
+        if: contains(matrix.target, 'linux-musl')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
 
       - name: Build (dev)
         run: cargo build --all-features
