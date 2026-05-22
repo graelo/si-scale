@@ -41,9 +41,9 @@ jobs:
           tool: cargo-deny@0.19.6
 
       - name: Security – cargo deny
-        run: cargo deny --locked check
+        run: cargo deny check
 
       - name: Security – cargo pants
         run: |
-          cargo install --locked cargo-pants || command -v cargo-pants
+          cargo install cargo-pants || command -v cargo-pants
           cargo pants
