@@ -26,15 +26,13 @@ jobs:
           persist-credentials: false
 
       - name: Install convco
-        run: |
-          curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
-          unzip convco-ubuntu.zip
-          chmod +x convco
+        uses: taiki-e/install-action@0fd46367812ee04360509b4169d9f659d6892bb2 # v2.79.15
+        with:
+          tool: convco@0.6.4
 
       - name: Generate changelog
         run: |
-          ./convco changelog -c .convco --max-versions 1 --include-hidden-sections > CHANGELOG.md
-          rm convco convco-ubuntu.zip
+          convco changelog -c .convco --max-versions 1 --include-hidden-sections > CHANGELOG.md
 
       - name: Create GitHub release
         env:

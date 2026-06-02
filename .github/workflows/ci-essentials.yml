@@ -53,15 +53,15 @@ jobs:
         run: |
           cargo clippy --all-targets --all-features -- -D warnings
 
+      - name: Install convco
+        uses: taiki-e/install-action@0fd46367812ee04360509b4169d9f659d6892bb2 # v2.79.15
+        with:
+          tool: convco@0.6.4
+
       - name: Quality – convco check
         run: |
           git show-ref
-          curl -sSfLO https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip
-          unzip convco-ubuntu.zip
-          chmod +x convco
-          ./convco --version
-          ./convco check -c .convco
-          rm convco
+          convco check -c .convco
 
       - name: Build (dev)
         run: cargo build --all-features
