@@ -14,7 +14,7 @@ and this project adheres to
   scope per-job permissions with least privilege, set persist-credentials: false,
   and guard caches against PR poisoning
 - Add zizmor and poutine for workflow and CI/CD supply-chain static analysis,
-  extracted into reusable workflows with a Tue/Fri scheduled caller
+  extracted into reusable workflows with a twice-monthly scheduled caller
 - Replace `ncipollo/release-action` with `gh` CLI in release workflow
 
 ### Changed
