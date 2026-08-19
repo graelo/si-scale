@@ -8,16 +8,35 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Add `AGENTS.md` with project architecture, verification, documentation, and
+  release guidance for coding agents
+- Add `rumdl` Markdown linting, including aligned tables and 80-column reflow
+
+### Changed
+
+- Consolidate local verification onto the `Makefile`, which is now the single
+  definition of every task: `make check` is the pre-push gate and
+  `make check-all` the pre-PR gate
+- Make `README.md` the canonical long-form guide; include it directly in
+  `src/lib.rs` crate documentation rather than duplicating it
+
+### Fixed
+
+- Coverage instructions now work: `make coverage` builds an HTML report with
+  `cargo-llvm-cov`, replacing the obsolete nightly + grcov workflow
+
 ### Security
 
 - Harden GitHub Actions workflows: pin third-party actions to commit SHAs,
-  scope per-job permissions with least privilege, set persist-credentials: false,
-  and guard caches against PR poisoning
+    scope per-job permissions with least privilege, set persist-credentials:
+    false, and guard caches against PR poisoning
 - Add zizmor and poutine for workflow and CI/CD supply-chain static analysis,
   extracted into reusable workflows with a twice-monthly scheduled caller
 - Replace `ncipollo/release-action` with `gh` CLI in release workflow
 
-### Changed
+### CI
 
 - Switch test runner from `cargo test` to `cargo-nextest` with CI profile
 - Remove inline cargo-deny, cargo-outdated, and cargo-pants from essentials
