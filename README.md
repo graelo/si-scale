@@ -5,15 +5,14 @@
 [![minimum rustc 1.78](https://img.shields.io/badge/rustc-1.78+-red.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 [![build status](https://github.com/graelo/si-scale/actions/workflows/ci-essentials.yml/badge.svg)](https://github.com/graelo/si-scale/actions/workflows/ci-essentials.yml)
 
-<!-- cargo-sync-readme start -->
-
-Format value with units according to SI ([système international d’unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
+Format value with units according to SI
+([système international d’unités](https://en.wikipedia.org/wiki/International_System_of_Units)).
 
 Version requirement: _rustc 1.78+_
 
 ```toml
 [dependencies]
-si-scale = "0.2"
+si-scale = "0.3"
 ```
 
 ## Overview
@@ -59,7 +58,7 @@ assert_eq!(actual, expected);
 
 ```toml
 [dependencies]
-si-scale = { version = "0.2", features = ["lossy-conversions"] }
+si-scale = { version = "0.3", features = ["lossy-conversions"] }
 ```
 
 ## Pre-defined helper functions
@@ -93,8 +92,9 @@ Currently the helper functions are:
 ## Custom helper functions - BYOU (bring your own unit)
 
 To define your own format function, use the
-[`scale_fn!()`](`crate::scale_fn!\(\)`) macro. All pre-defined helper
-functions from this crate are defined using this macro.
+[`scale_fn!()`](https://docs.rs/si-scale/latest/si_scale/macro.scale_fn.html)
+macro. All pre-defined helper functions from this crate are defined using this
+macro.
 
 | helper fn    | mantissa  | prefix constraint | base  | groupings | input                  | output                 |
 | ---          | --        | ---               | ---   | ---       | ---                    | ---                    |
@@ -236,10 +236,13 @@ convenience.
 
 For the low-level API, the typical use case is
 
-- first parse a number into a [`Value`](`crate::value::Value`). For doing
-  this, you have to specify the base, and maybe some constraint on the SI
-  scales. See [`Value::new()`](`crate::value::Value::new\(\)`) and
-  [`Value::new_with()`](`crate::value::Value::new_with\(\)`)
+- first parse a number into a
+  [`Value`](https://docs.rs/si-scale/latest/si_scale/value/struct.Value.html).
+  For doing this, you have to specify the base, and maybe some constraint on
+  the SI scales. See
+  [`Value::new()`](https://docs.rs/si-scale/latest/si_scale/value/struct.Value.html#method.new)
+  and
+  [`Value::new_with()`](https://docs.rs/si-scale/latest/si_scale/value/struct.Value.html#method.new_with)
 
 - then display the `Value` either by yourself formatting the mantissa
   and prefix (implements the `fmt::Display` trait), or using the provided
@@ -328,7 +331,8 @@ assert_eq!(actual, expected);
 
 #### Creating a `Value` with `Value::new()`
 
-The low-level function [`Value::new()`](`crate::value::Value::new\(\)`)
+The low-level function
+[`Value::new()`](https://docs.rs/si-scale/latest/si_scale/value/struct.Value.html#method.new)
 converts any number convertible to f64 into a `Value` using base 1000. The
 `Value` struct implements `From` for common numbers and delegates to
 `Value::new()`, so they are equivalent in practice. Here are a few
@@ -380,9 +384,11 @@ SI prefixes are represented using the closest SI prefix.
 
 #### Creating a `Value` with `Value::new_with()`
 
-The low-level [`Value::new_with()`](`crate::value::Value::new_with\(\)`)
-operates similarly to [`Value::new()`](`crate::value::Value::new\(\)`) but
-also expects a base and a constraint on the scales you want to use. In
+The low-level
+[`Value::new_with()`](https://docs.rs/si-scale/latest/si_scale/value/struct.Value.html#method.new_with)
+operates similarly to
+[`Value::new()`](https://docs.rs/si-scale/latest/si_scale/value/struct.Value.html#method.new)
+but also expects a base and a constraint on the scales you want to use. In
 comparison with the simple `Value::new()`, this allows base 1024 scaling
 (for kiB, MiB, etc) and preventing upper scales for seconds or lower
 scales for integral units such as bytes (e.g. avoid writing 1300 sec as
@@ -427,29 +433,27 @@ let expected = "result is 1_234.567_80 s";
 assert_eq!(actual, expected);
 ```
 
-## Run code-coverage
+## Development
 
-Install the llvm-tools-preview component and grcov
+The [`Makefile`](Makefile) defines the local verification tasks. Run
+`make help` to list them, `make check` before pushing, and `make check-all`
+before opening a pull request.
+
+## Code coverage
+
+Install [`cargo-llvm-cov`](https://github.com/taiki-e/cargo-llvm-cov):
 
 ```sh
-rustup component add llvm-tools-preview
-cargo install grcov
+cargo install cargo-llvm-cov
 ```
 
-Install nightly
-
-```sh
-rustup toolchain install nightly
-```
-
-The following make invocation will switch to nigthly run the tests using
-Cargo, and output coverage HTML report in `./coverage/`
+Then generate the HTML report:
 
 ```sh
 make coverage
 ```
 
-The coverage report is located in `./coverage/index.html`
+Open `target/llvm-cov/html/index.html` to view the report.
 
 ## License
 
@@ -468,5 +472,3 @@ Unless you explicitly state otherwise, any contribution intentionally
 submitted for inclusion in the work by you, as defined in the Apache-2.0
 license, shall be dual licensed as above, without any additional terms or
 conditions.
-
-<!-- cargo-sync-readme end -->
