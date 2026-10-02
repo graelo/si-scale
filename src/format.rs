@@ -70,7 +70,12 @@ macro_rules! format_value {
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
-                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+                $crate::base::Base::B1024 =>
+                    if $name.prefix == $crate::prefix::Prefix::Unit {
+                        ""
+                    } else {
+                        "i"
+                    },
             },
         )
     };
@@ -82,7 +87,12 @@ macro_rules! format_value {
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
-                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+                $crate::base::Base::B1024 =>
+                    if $name.prefix == $crate::prefix::Prefix::Unit {
+                        ""
+                    } else {
+                        "i"
+                    },
             },
         )
     };
@@ -93,12 +103,17 @@ macro_rules! format_value {
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
             match $name.prefix {
                 $crate::prefix::Prefix::Unit => "",
-                _=> " "
+                _ => " ",
             },
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
-                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+                $crate::base::Base::B1024 =>
+                    if $name.prefix == $crate::prefix::Prefix::Unit {
+                        ""
+                    } else {
+                        "i"
+                    },
             },
         )
     };
