@@ -64,43 +64,58 @@
 #[macro_export]
 macro_rules! format_value {
     ($name:ident, $fmt_str:literal) => {
-        format_args! {
+        format_args!(
             concat!($fmt_str, " {}{}"),
             $name.mantissa,
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
-                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+                $crate::base::Base::B1024 =>
+                    if $name.prefix == $crate::prefix::Prefix::Unit {
+                        ""
+                    } else {
+                        "i"
+                    },
             },
-        }
+        )
     };
 
     ($name:ident, $fmt_str:literal, groupings: $separator:expr) => {
-        format_args! {
+        format_args!(
             "{} {}{}",
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
-                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+                $crate::base::Base::B1024 =>
+                    if $name.prefix == $crate::prefix::Prefix::Unit {
+                        ""
+                    } else {
+                        "i"
+                    },
             },
-        }
+        )
     };
 
     ($name:ident, $fmt_str:literal, groupings: $separator:expr, no_unit) => {
-        format_args! {
+        format_args!(
             "{}{}{}{}",
             $crate::format::separated_float(&format!($fmt_str, $name.mantissa), $separator),
             match $name.prefix {
                 $crate::prefix::Prefix::Unit => "",
-                _=> " "
+                _ => " ",
             },
             $name.prefix,
             match $name.base {
                 $crate::base::Base::B1000 => "",
-                $crate::base::Base::B1024 => if $name.prefix == $crate::prefix::Prefix::Unit {""} else {"i"},
+                $crate::base::Base::B1024 =>
+                    if $name.prefix == $crate::prefix::Prefix::Unit {
+                        ""
+                    } else {
+                        "i"
+                    },
             },
-        }
+        )
     };
 }
 
