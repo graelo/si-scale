@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Add `.cargo/config.toml` to deny cargo build warnings (e.g.
+  `cargo::unused_dependencies`) locally, matching the CI default set via
+  `actions-rust-lang/setup-rust-toolchain`'s `CARGO_BUILD_WARNINGS`
+
 ## [0.3.1] - 2026-10-04
 
 ### Added
