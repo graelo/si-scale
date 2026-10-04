@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.1] - 2026-10-04
 
 ### Added
 
@@ -21,9 +21,15 @@ and this project adheres to
   `make check-all` the pre-PR gate
 - Make `README.md` the canonical long-form guide; include it directly in
   `src/lib.rs` crate documentation rather than duplicating it
+- Dual-license under MIT OR Apache-2.0: correct the copyright holder in both
+  LICENSE files (`u0xy` → `graelo`) and align the README license section
 
 ### Fixed
 
+- Use standard parentheses in `format_args!` invocations in the
+  `format_value!` macro: Clippy 1.99's `nonstandard_macro_braces` lint
+  rejected the brace form for downstream users; expansion and output are
+  unchanged
 - Remove the redundant `package.homepage` from `Cargo.toml`: the new
   `cargo::redundant_homepage` manifest lint (warn-by-default on beta and
   nightly) turned into a hard error under the
@@ -144,3 +150,5 @@ and this project adheres to
 - `format_value!()` macro
 - Allowed prefixes and exponent clamping
 - Helpers module with `bytes()`, `bibytes()`, `number()` functions
+
+[0.3.1]: https://github.com/graelo/si-scale/compare/v0.3.0...v0.3.1
