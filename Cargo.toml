@@ -6,7 +6,6 @@ description = "Format values using the appropriate SI scale: seconds(1.3e-5) -> 
 readme = "README.md"
 
 documentation = "https://docs.rs/si-scale"
-homepage = "https://github.com/graelo/si-scale"
 repository = "https://github.com/graelo/si-scale"
 license = "MIT OR Apache-2.0"
 
