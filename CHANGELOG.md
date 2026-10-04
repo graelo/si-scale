@@ -24,6 +24,12 @@ and this project adheres to
 
 ### Fixed
 
+- Remove the redundant `package.homepage` from `Cargo.toml`: the new
+  `cargo::redundant_homepage` manifest lint (warn-by-default on beta and
+  nightly) turned into a hard error under the
+  `CARGO_BUILD_WARNINGS=deny` default of
+  `actions-rust-lang/setup-rust-toolchain`, failing the compatibility
+  matrix on beta and nightly
 - Coverage instructions now work: `make coverage` builds an HTML report with
   `cargo-llvm-cov`, replacing the obsolete nightly + grcov workflow
 
