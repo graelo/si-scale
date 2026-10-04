@@ -32,6 +32,14 @@ and this project adheres to
 - Harden GitHub Actions workflows: pin third-party actions to commit SHAs,
     scope per-job permissions with least privilege, set persist-credentials:
     false, and guard caches against PR poisoning
+- Apply github-actions-playbook v1.9: switch Rust toolchain setup from
+  `dtolnay/rust-toolchain` to the pinned
+  `actions-rust-lang/setup-rust-toolchain` with caching left to the explicit
+  `actions/cache` steps, and drop the now-unneeded `.github/zizmor.yml`
+  suppressions
+- Use GitHub's `$` self-repository syntax for reusable workflow references
+  (`$/.github/workflows/...` instead of `./.github/workflows/...`), per the
+  playbook's self-repository convention
 - Add zizmor and poutine for workflow and CI/CD supply-chain static analysis,
   extracted into reusable workflows with a twice-monthly scheduled caller
 - Replace `ncipollo/release-action` with `gh` CLI in release workflow
